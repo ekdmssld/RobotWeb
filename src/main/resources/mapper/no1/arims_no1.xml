@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tsei.www.mapper.no1.arimsMapper">
+
+
+  <select id="getMsv" resultType="com.tsei.www.dto.robot.chemicalDataDTO">
+      SELECT name AS chemicalName , msv AS chemicalValue FROM msv
+      WHERE name = #{chemicalName}
+  </select>
+
+
+  <!-- 사업체 데이터 -->
+  <!-- <select id="getplace" resultType="com.tsei.www.dto.placeDataDTO">
+      SELECT lat AS latitude, lon AS longitude, id AS SourceId, name, csv_filename AS csvFilename , odor 
+      FROM company </select> -->
+
+<!-- 키값 사용 -->
+  <select id="getplace" resultType="com.tsei.www.dto.tracking.placeDataDTO">
+      SELECT lat AS latitude, lon AS longitude, id AS companyIndex, name, csv_filename AS csvFilename , odor 
+      FROM company
+  </select>
+
+
+    <select id="searchPlace" resultType="String">
+        SELECT name
+        FROM company
+        WHERE name LIKE CONCAT('%',#{name}, '%')
+    </select>
+
+
+  <select id="getCarCsvContent" resultType="com.tsei.www.dto.robot.chemicalDataDTO">
+        SELECT chemical_name AS chemicalName, chemical_value AS chemicalValue, msv
+        from car_csv WHERE detail_id = #{detailId};
+    </select>
+
+  <select id="getPlaceCsvContent" resultType="com.tsei.www.dto.robot.chemicalDataDTO">
+        SELECT chemical_name AS chemicalName, chemical_value AS chemicalValue, msv
+        from company_csv WHERE company_id = #{companyIdex};
+    </select>
+
+<!-- 키값 사용 -->
+  <!-- <select id="getCarCsvContent" resultType="com.tsei.www.dto.chemicalDataDTO">
+        SELECT chemical_name AS chemicalName, chemical_value AS chemicalValue, msv
+        from car_csv WHERE detail_id = #{detailId};
+    </select>
+
+  <select id="getPlaceCsvContent" resultType="com.tsei.www.dto.chemicalDataDTO">
+        SELECT chemical_name AS chemicalName, chemical_value AS chemicalValue, msv
+        from company_csv WHERE company_id = #{companyIdex};
+    </select> -->
+
+
+    <select id="getCar" resultType="com.tsei.www.dto.tracking.carDTO">
+        SELECT id AS carId, id AS detailId, lat AS latitude , lon AS longitude, date ,
+        wind_direction as windDirection , csv_filename AS csvFilename
+        FROM car_detail
+        WHERE date BETWEEN #{startTime} AND #{endTime} AND car_code like #{selectCar}
+    </select>
+
+<!-- 키값 사용 -->
+    <!-- <select id="getCar" resultType="com.tsei.www.dto.carDTO">
+        SELECT id AS carId, id AS detailId, lat AS latitude , lon AS longitude, date , wind_direction as windDirection , csv_filename AS csvFilename
+        FROM car_detail
+        WHERE date BETWEEN #{startTime} AND #{endTime} AND car_code like #{selectCar}
+    </select> -->
+
+    <select id="getCarLocation" resultType="com.tsei.www.vo.location">
+        SELECT  lat AS latitude , lon AS longitude
+        FROM car_sift
+        WHERE date BETWEEN #{startTime} AND #{endTime} AND car_code like #{selectCar}
+    </select>
+
+
+
+    <select id="getGPSDate" resultType="String">
+        SELECT DATE_FORMAT(date, '%Y-%m-%d') AS reg_date
+        FROM car_sift
+        WHERE car_code = #{carCode}
+        GROUP BY reg_date
+        ORDER BY reg_date DESC;
+    </select>
+
+
+
+    <select id="getRealtimeCar" resultType="com.tsei.www.dto.tracking.carDTO">
+        SELECT id AS carId, lat AS latitude, lon AS longitude, date, wind_direction AS windDirection, csv_filename AS csvFilename
+        FROM car_detail
+        WHERE date BETWEEN DATE_ADD(#{lastQueryTime}, INTERVAL -2 MINUTE) AND #{endTime}
+        AND car_code LIKE #{selectCar}
+        ORDER BY date DESC LIMIT 1
+    </select>
+
+
+    <select id="getRealtimeCarLocation" resultType="com.tsei.www.vo.location">
+        SELECT  lat AS latitude , lon AS longitude, date
+        FROM car_sift
+        WHERE date BETWEEN DATE_ADD(#{lastQueryTime}, INTERVAL -20 SECOND) AND #{endTime}
+        AND car_code LIKE #{selectCar}
+    </select>
+
+    <!-- 방지시설연동 -->
+    <select id = "searchCompany" resultType="com.tsei.www.dto.tracking.placeDataDTO">
+        SELECT id AS companyIndex, name, lat AS latitude, lon AS longitude, csv_filename AS csvFilename, odor
+        FROM company WHERE name LIKE CONCAT('%',#{name},'%')
+    </select>
+
+
+</mapper>

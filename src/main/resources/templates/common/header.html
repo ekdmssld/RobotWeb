@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/common/css/header.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var apiKey = '8f82b2caa0e0e7e57bdb478d65795b8b';  // OpenWeatherMap API 키 입력
+
+            function fetchWeather() {
+                var weatherContainer = $('#weather-container');
+
+                $.ajax({
+                url: 'https://api.openweathermap.org/data/2.5/weather?q=Ulsan&appid=' + apiKey,
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    var temperature = Math.round(data.main.temp - 273.15);
+                    var description = data.weather[0].description;
+                    var city = data.name;
+                    var windspeed = data.wind.speed;
+                    var windegree = convertWindDirection(data.wind.deg);
+                    weatherContainer.html('<p>도시: ' + city + '   온도: ' + temperature + '   날씨: ' + description +'</p>' +
+                                        '<p>풍속: ' + windspeed + 'm/s   풍향: ' + windegree + '</p>');
+                },
+                error: function(error) {
+                    console.log('날씨 데이터를 가져오는 중 오류가 발생했습니다.');
+                }
+                });
+            }
+
+            // 초기 실행 및 10초마다 날씨 데이터 업데이트
+            fetchWeather();
+            setInterval(fetchWeather, 10000);
+        });
+
+        function convertWindDirection(degrees) {
+            if (degrees >= 22.5 && degrees < 67.5) {
+              return '동북동';
+            } else if (degrees >= 67.5 && degrees < 112.5) {
+              return '동';
+            } else if (degrees >= 112.5 && degrees < 157.5) {
+              return '동남동';
+            } else if (degrees >= 157.5 && degrees < 202.5) {
+              return '남';
+            } else if (degrees >= 202.5 && degrees < 247.5) {
+              return '남서남';
+            } else if (degrees >= 247.5 && degrees < 292.5) {
+              return '서';
+            } else if (degrees >= 292.5 && degrees < 337.5) {
+              return '서북서';
+            } else {
+              return '북';
+            }
+          }
+    </script>
+</head>
+
+<body>
+  <div id = "header">
+    <nav>
+        <div class="header-container">
+            <div class="header-left">
+                <a id="homehref" href="/home">
+                    <img src="/static/common/img/tsei.png" alt="Tsei" width="40px" height="40px">
+                    <span>TAESUNG</span>
+                </a>
+            </div>
+            <div class="header-center">
+                <p>태성환경연구소 통합관리시스템</p>
+            </div>
+            <div class="header-right">
+                <!-- 사용자 정보 수정부분 !!로그인 기능완성 시 이부분 수정 필요!! -->
+                 <i class="fas fa-bell"></i>
+                 <i class="fas fa-cog"></i>
+                 <span class="user-info" id="user-info">TSEI</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 탭 부분 -->
+    <!-- -->
+    <nav>
+        <div class="header-tabs-container">
+            <div class="tab active"><a href="http://219.249.140.29:59083/arims/" onclick="activateTab(this)" >실시간 악취 관제</a></div>
+            <div class="tab"><a href="http://219.249.140.29:12480/home" onclick="activateTab(this)">바람길 예측</a></div>
+            <div class="tab"><a href="http://219.249.140.29:59081/soms/page3" onclick="activateTab(this)">악취 예보</a></div>
+            <div class="tab"><a href="http://219.249.140.29:28083/soms/page5/input"onclick="activateTab(this)">솔루션</a></div>
+        </div>
+    </nav>
+  </div>
+
+    <script src= "/static/common/js/header.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>로봇 추적</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Favicon -->
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+
+    <!-- 공통 CSS -->
+    <link rel="stylesheet" href="/static/common/css/main.css">
+    <link rel="stylesheet" href="/static/common/css/toast.css">
+
+    <!-- 페이지 전용 CSS -->
+    <link rel="stylesheet" href="/static/tseiweb/css/main.css">
+    <link rel="stylesheet" href="/static/tseiweb/css/loading.css">
+    <link rel="stylesheet" href="/static/tseiweb/css/customMarker.css">
+    <link rel="stylesheet" href="/static/tseiweb/css/property.css">
+    <link rel="stylesheet" href="/static/tseiweb/css/robot.css">
+
+    <!-- Google Maps & 클러스터링 -->
+    <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+    <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_API_KEY"></script>
+
+    <!-- 1. jQuery 먼저 -->
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+
+    <!-- 2. Bootstrap -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- 3. jQuery 기반 toast.js -->
+    <script src="/static/common/js/toast.js"></script>
+
+    <!-- 4. polyfill -->
+    <script src="/static/tseiweb/js/polyfill.min.js"></script>
+
+    <!-- 5. Google Maps 클러스터러 -->
+    <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+    <script>(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
+    ({ key: "AIzaSyCzxSPknsO4ZKNEf55FpCQl1Ukm0k7shQw", v: "weekly" });</script>
+
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            window.robotModal = new RobotModal("analysisModal");
+        });
+    </script>
+
+
+</head>
+
+<body>
+<!-- 공통 헤더 / 사이드바 -->
+<header th:replace="common/header"></header>
+<nav th:replace="tseiweb/topnav"></nav>
+
+<!-- 알림 영역 -->
+<ul class="notifications"></ul>
+
+<!-- 로딩 애니메이션 -->
+<div id="loading-anim">
+    <div class="center">
+        <div class="ring"></div>
+        <p>
+            <span>loading...</span><br>
+            <span id="process-bar"></span><br>
+            <span style="color: red">중지를 원하면 ESC를 누르십시오.</span>
+        </p>
+    </div>
+</div>
+
+<!-- 분석 모달 (화학물질 정보) -->
+<div id="analysisModal" class="modal">
+    <div class="modal_1-content">
+        <div class="modal-header" style="cursor:move;">
+            <span id="modalText"> 해당 위치의 화학 정보 </span>
+        </div>
+        <table id="integratedTable">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 비교 모달 (고농도 포함 여부) -->
+<div id="compareModal" class="modal2">
+    <div class="modal_2-content">
+        <div style="font-size: 15px;">사업장 고농도 상위 10가지 물질 포함 여부</div>
+        <table id="compareTable">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="contents">
+    <leftmenu th:replace="tseiweb/leftmenu"></leftmenu>
+
+    <div id="map"></div>
+</div>
+
+<div class="div-filter">
+    <table class="table-filter">
+        <tr>
+            <td>
+                <p style="font-weight: bold; color: grey;">운행내역 조회</p>
+                <select id="carCodeSelect">
+                    <option value="R1">로봇 R1</option>
+                    <option value="R2">로봇 R2</option>
+                </select>
+                <select id="availableDates" style="max-height: 150px; overflow-y: auto;"></select>
+                <button id="searchRobot">로봇 경로 조회</button>
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+
+<!-- 키워드 자동완성 예시 (숨김 상태) -->
+<div id="relatedKeywords" style="font-size: 15px; position: fixed; z-index: 9; left: 667px; top: 90px; background-color: white; border: 1px solid #ccc; max-height: 200px; width: 12vw; padding: 5px; overflow-y: auto; display: none;"></div>
+<!-- 6. 로딩순서 중요한 모듈 (type="module") -->
+<script src="/static/tseiweb/js/MonitoringSystem/Map.js"></script>
+<script src="/static/tseiweb/js/MonitoringSystem/RobotModal.js"></script>
+<script src="/static/tseiweb/js/MonitoringSystem/Robot.js"></script>
+<script src="/static/tseiweb/js/MonitoringSystem/Car.js"></script>
+<script src="/static/tseiweb/js/MonitoringSystem/CarList.js"></script>
+<script src="/static/tseiweb/js/MonitoringSystem/Modal.js"></script>
+</body>
+</html>

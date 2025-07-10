@@ -1,0 +1,22 @@
+.date-list-container {
+    max-height: 150px;
+    overflow-y: scroll;
+    border: 1px solid #ccc;
+    background: #fff;
+    padding: 5px;
+    margin-top: 5px;
+}
+
+.date-list li {
+    padding: 6px;
+    cursor: pointer;
+}
+
+.date-list li:hover {
+    background-color: #f0f0f0;
+}
+
+.date-list .fixed-highlight {
+    background-color: #ffeb3b; /* 노란색 강조 */
+    font-weight: bold;
+}

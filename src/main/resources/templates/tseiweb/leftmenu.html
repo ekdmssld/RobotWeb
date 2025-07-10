@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <link rel="stylesheet" href="/static/tseiweb/css/leftmenu.css" />
+    <script src="/static/tseiweb/js/MonitoringSystem/leftmenu.js"></script>
+  </head>
+
+  <body>
+    
+    <div class="contents-leftmenu">
+        
+
+      <div class="weather" style="margin-top: 10px">
+        
+
+        <table class="table-to-weather">
+          <thead>
+            <tr>
+              <td colspan="2">
+                <span id="nowDate">-</span>
+                <h1 class="h1-clock"></h1>
+              </td>
+            </tr>
+          </thead>
+          
+        </table>
+
+        <!-- <div class="nowIcon"><i class="bi bi-brightness-high" style="font-size: 80px"></i></div> !-->
+      </div>
+
+      <div class="menu-info" style="margin-top: 10px">
+        <span>지도 중심 좌표</span>
+        <i
+          class="bi bi-chevron-down"
+          style="color: white; font-size: 15px; margin-left: 110px"
+        ></i>
+      </div>
+    <h1 id="nowPosition">Ulsan</h1>
+
+    
+      <div class="menu-info"  style="margin-top: 30px">
+        <span>측정지점 실시간 악취정보</span>
+        <i
+          class="bi bi-chevron-down"
+          style="color: white; font-size: 15px; margin-left: 40px"
+        ></i>
+      </div>
+      <div class="menu-info-detail1">
+        <div style="text-align: center; width: 340px">
+          <table class="detail1-table">
+            <tr>
+              <td style="width: 160px">좌표(위도/경도)</td>
+              <td style="width: 110px">측정일시</td>
+            </tr>
+            <tr>
+              <td
+                style="width: 160px; border: 2px solid #30497d"
+                id="leftLatLng"
+              >
+                -
+              </td>
+              <td style="width: 110px; border: 2px solid #30497d" id="leftTime">
+                -
+              </td>
+            </tr>
+          </table>
+          <table class="detail1-table">
+            <tr>
+              <td style="width: 90px">악취 종류</td>
+              <td style="width: 90px">악취 세기</td>
+              <td style="width: 90px">풍향</td>
+            </tr>
+            <tr>
+              <td style="width: 90px; border: 2px solid #30497d" id="odorkind">
+                -
+              </td>
+              <td
+                style="width: 90px; border: 2px solid #30497d"
+                id="odorstrength"
+              >
+                -
+              </td>
+              <td style="width: 90px; border: 2px solid #30497d" id="winddir">
+                -
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="menu-info" style="margin-top: 20px">
+        <span>악취발생 예상 사업장</span>
+        <i
+          class="bi bi-chevron-down"
+          style="color: white; font-size: 15px; margin-left: 70px"
+        ></i>
+      </div>
+      <div class="menu-info-detail2">
+        <div class="radius-select-container">
+          <div>기본 반경(Km)</div>
+          <div class="radius-distance-select">
+            <input
+              type="radio"
+              id="radius-btn6"
+              name="radius"
+              value="5000"
+            /><label for="radius-btn6"></label>
+            <input
+              type="radio"
+              id="radius-btn5"
+              name="radius"
+              value="4000"
+            /><label for="radius-btn5"></label>
+            <input
+              type="radio"
+              id="radius-btn4"
+              name="radius"
+              value="3000"
+            /><label for="radius-btn4"></label>
+            <input
+              type="radio"
+              id="radius-btn3"
+              name="radius"
+              value="2000"
+            /><label for="radius-btn3"></label>
+            <input
+              type="radio"
+              id="radius-btn2"
+              name="radius"
+              value="1000"
+            /><label for="radius-btn2"></label>
+            <input
+              type="radio"
+              id="radius-btn1"
+              name="radius"
+              value="500"
+            /><label for="radius-btn1"></label>
+          </div>
+          <div class="radius-distance-text">
+            <div>5</div>
+            <div>4</div>
+            <div>3</div>
+            <div>2</div>
+            <div>1</div>
+            <div>0.5</div>
+            <div>0</div>
+          </div>
+          <div>기본 부채꼴의 너비(°)</div>
+          <div class="radius-angle-select">
+            <input
+              type="radio"
+              id="radius-btn14"
+              name="radius2"
+              value="120"
+            /><label for="radius-btn14"></label>
+            <input type="radio" id="radius-btn13" name="radius2" value="90" />
+            <label for="radius-btn13"></label>
+            <input
+              type="radio"
+              id="radius-btn12"
+              name="radius2"
+              value="60"
+            /><label for="radius-btn12"></label>
+            <input
+              type="radio"
+              id="radius-btn11"
+              name="radius2"
+              value="30"
+            /><label for="radius-btn11"></label>
+          </div>
+          <div class="radius-angle-text">
+            <div>120</div>
+            <div>90</div>
+            <div>30</div>
+            <div>0</div>
+          </div>
+        </div>
+      </div>
+      <div class="menu-info-detail2-1">
+        <p>반경 내 사업장</p>
+        <div class="detail2-1-table-container">
+          <table class="detail2-1-table" id="odor_correct_table">
+            <thead>
+              <tr>
+                <td
+                  style="
+                    width: 10%;
+                    padding-top: 4px;
+                    padding-bottom: 4px;
+                    border: 1px solid #30497d;
+                    background-color: #1f2f63;
+                  "
+                  rowspan="4"
+                >
+                  사업장 명
+                </td>
+              </tr>
+              <tr>
+                <td
+                  class="inRadius"
+                  style="width: 25%; border: 1px solid #30497d"
+                >
+                  .
+                </td>
+              </tr>
+              <tr>
+                <td
+                  class="inRadius"
+                  style="width: 25%; border: 1px solid #30497d"
+                >
+                  .
+                </td>
+              </tr>
+              <tr>
+                <td
+                  class="inRadius"
+                  style="width: 25%; border: 1px solid #30497d"
+                >
+                  .
+                </td>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <br />
+        <p>부채꼴 내 악취 종류 일치 사업장</p>
+        <div class="detail2-1-table-container">
+          <table class="detail2-1-table" id="wind_odor_correct_table">
+            <thead>
+              <tr>
+                <td
+                  style="
+                    width: 10%;
+                    padding-top: 4px;
+                    padding-bottom: 4px;
+                    border: 1px solid #30497d;
+                    background-color: #1f2f63;
+                  "
+                  rowspan="4"
+                >
+                  사업장 명
+                </td>
+              </tr>
+              <tr>
+                <td
+                  class="matching"
+                  style="width: 25%; border: 1px solid #30497d"
+                >
+                  .
+                </td>
+              </tr>
+              <tr>
+                <td
+                  class="matching"
+                  style="width: 25%; border: 1px solid #30497d"
+                >
+                  .
+                </td>
+              </tr>
+              <tr>
+                <td
+                  class="matching"
+                  style="width: 25%; border: 1px solid #30497d"
+                >
+                  .
+                </td>
+              </tr>
+            </thead>
+          </table>
+        </div>
+        <div class="menu-info" style="margin-top: 10px">
+          <span>악취 원인 사업장 예측</span>
+          <i
+            class="bi bi-chevron-down"
+            style="color: white; font-size: 15px; margin-left: 60px"
+          ></i>
+        </div>
+        <br />
+        <table class="detail2-1-table" id="predict_result_table">
+          <tr>
+            <td
+              style="
+                width: 50%;
+                padding-top: 4px;
+                padding-bottom: 4px;
+                border: 1px solid #30497d;
+                background-color: #1f2f63;
+              "
+            >
+              사업자 명
+            </td>
+            <td
+              style="
+                width: 20%;
+                padding-top: 4px;
+                padding-bottom: 4px;
+                border: 1px solid #30497d;
+                background-color: #1f2f63;
+              "
+            >
+              비율합계
+            </td>
+            <td
+              style="
+                width: 10%;
+                padding-top: 4px;
+                padding-bottom: 4px;
+                border: 1px solid #30497d;
+                background-color: #1f2f63;
+              "
+            >
+              순위
+            </td>
+          </tr>
+          <tr>
+            <td
+              style="width: 55%; border: 1px solid #30497d"
+              class="result_place"
+            >
+              .
+            </td>
+            <td
+              style="width: 15%; border: 1px solid #30497d"
+              class="result_sum"
+            >
+              .
+            </td>
+            <td
+              style="width: 10%; border: 1px solid #30497d"
+              class="result_rank"
+            >
+              .
+            </td>
+          </tr>
+          <tr>
+            <td
+            style="width: 55%; border: 1px solid #30497d"
+            class="result_place"
+          >
+            .
+          </td>
+          <td
+            style="width: 15%; border: 1px solid #30497d"
+            class="result_sum"
+          >
+            .
+          </td>
+          <td
+            style="width: 10%; border: 1px solid #30497d"
+            class="result_rank"
+          >
+            .
+          </td>
+              .
+            </td>
+          </tr>
+          <tr>
+            <td
+            style="width: 55%; border: 1px solid #30497d"
+            class="result_place"
+          >
+            .
+          </td>
+          <td
+            style="width: 15%; border: 1px solid #30497d"
+            class="result_sum"
+          >
+            .
+          </td>
+          <td
+            style="width: 10%; border: 1px solid #30497d"
+            class="result_rank"
+          >
+            .
+          </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

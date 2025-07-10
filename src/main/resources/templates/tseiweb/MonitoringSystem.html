@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/static/common/css/main.css">
+    <link rel="stylesheet" href="/static/tseiweb/css/main.css">
+    <link rel="stylesheet" href="/static/tseiweb/css/loading.css">
+    <link rel="stylesheet" href="/static/tseiweb/css/customMarker.css">
+    <link rel="stylesheet" href="/static/tseiweb/css/property.css">
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="/static/tseiweb/js/polyfill.min.js"></script>
+    <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+    <script src="/static/tseiweb/js/MonitoringSystem/Car.js"></script>
+    <script src="/static/tseiweb/js/MonitoringSystem/CarList.js"></script>
+    <script src="/static/tseiweb/js/MonitoringSystem/Loading.js"></script>
+    <script src="/static/tseiweb/js/MonitoringSystem/Map.js"></script>
+    <script src="/static/tseiweb/js/MonitoringSystem/Modal.js"></script>
+    <script src="/static/tseiweb/js/MonitoringSystem/SourcePlace.js"></script>
+    <script src="/static/tseiweb/js/MonitoringSystem/SourcePlaceList.js"></script>
+    <script src="/static/tseiweb/js/MonitoringSystem/Web.js"></script>
+    <script>(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
+                ({ key: "AIzaSyCzxSPknsO4ZKNEf55FpCQl1Ukm0k7shQw", v: "weekly" });</script>
+    <!-- 부트스트랩 CDN -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- 부트스트랩 JavaScript CDN -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/common/css/toast.css">
+    <script src="/static/common/js/toast.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <meta charset="UTF-8">
+    <title>악취추적차량</title>
+    <style>
+        /* 슬라이더 주변 상자 */
+    .switch {
+    position: relative;
+    display: inline-block;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    width: 60px;
+    height: 20px;
+    }
+
+    /* HTML 기본 체크박스 숨기기 */
+    .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    }
+
+    /* 슬라이더 효과 */
+    .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    }
+
+    .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 0px;
+    bottom: 0px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    }
+
+    input:checked + .slider {
+    background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+    -webkit-transform: translateX(40px);
+    -ms-transform: translateX(40px);
+    transform: translateX(40px);
+    }
+
+    /* 둥근스위치버튼 스타일 및 효과 */
+    .slider.round {
+    border-radius: 34px;
+    }
+
+    .slider.round:before {
+    border-radius: 50%;
+    }
+    </style>
+</head>
+
+<body>
+<header th:replace="common/header"></header>
+<nav th:replace="tseiweb/topnav"></nav>
+<ul class="notifications"></ul>
+<div id="loading-anim">
+    <div class="center">
+        <div class="ring"></div>
+        <p>
+            <span>loading...</span>
+            <br>
+            <span id="process-bar"></span>
+            <br>
+            <span style="color: red">중지를 원하면 ESC를 누르십시오.</span>
+        </p>
+    </div>
+</div>
+
+<div id="analysisModal" class="modal">
+    <div class="modal_1-content">
+        <div>
+            <table id="odorPredictTable">
+                <thead>
+                </thead>
+            </table>
+            <div id="prevention-button" class="">
+                <button data-company_id="">방지시설예측</button>
+            </div>
+        </div>
+        <div id="modalText"> 해당 객체의 악취 정보 </div>
+        <table id="integratedTable">
+            <thead>
+            </thead>
+        </table>
+    </div>
+    <div> </div>
+</div>
+<div id="compareModal" class="modal2">
+    <div class="modal_2-content">
+
+        <div style="font-size: 15px;"> 사업장 고농도 상위 10가지 물질 포함 여부 </div>
+        <table id="compareTable">
+            <thead>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <div style="font-size: 15px;"> 사업장 기여율 상위 10가지 물질 포함 여부 </div>
+        <table id="compareTable2">
+            <thead>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <div> </div>
+
+
+    </div>
+
+</div>
+<div class="contents">
+    <leftmenu th:replace="tseiweb/leftmenu"></leftmenu>
+
+    <div id="map"></div>
+</div>
+<div class="div-filter">
+    <table class="table-filter">
+        <tbody>
+        <tr>
+            <td class="td-mw-date">
+                <p style="font-size: 15px; font-weight: bold; color: grey; padding-top: 7px; padding-left: 5px; padding-right: 5px;">운행내역 조회</p>
+                <select style="font-size: 1.4rem" id="selectDate" name="날짜선택">
+                </select>
+                <select style="font-size: 1.4rem; width: 100px;" id="selectQueue" name="순차/전체">
+                    <option value="실시간">실시간</option>
+                    <option value="순차적">순차적</option>
+                    <option value="전체" selected>전체</option>
+                </select>
+                <select style="font-size: 1.4rem; width: 100px;" id="selectCar" name="차량선택">
+                    <option value="S1" selected>스타렉스</option>
+                    <option value="S2">솔라티</option>
+                    <option value="OAE1">OAE1</option>
+                </select>
+                <p style="font-size: 15px; font-weight: bold; color: grey; padding-top: 7px; padding-left: 5px; padding-right: 5px;">분석결과</p>
+                <label class="switch">
+                    <input type="checkbox" id="marker_hidden_slide" checked>
+                    <span class="slider round"></span>
+                    <p> 마커 Hidden </p>
+                </label>
+                <button class="searchGPS" id="searchGPS"><i class="bi bi-search" style="font-size: 18px;"></i></button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="marker_search">
+    <table class="marker-filter">
+        <tbody>
+        <tr>
+            <td>
+                <p style="font-size: 15px; font-weight: bold; color: grey; padding-top: 7px; padding-left: 5px; padding-right: 5px;">차량마커 조회</p>
+                <select style="font-size: 1.4rem" id ="selectCarMarker" name="차량번호선택">
+                </select>
+                <button class="searchCar" id="searchCar"><i class="bi bi-search" style="font-size: 18px;"></i></button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="marker_search2">
+    <table class="marker-filter2">
+        <tbody>
+        <tr>
+            <td>
+                <p style="font-size: 15px; font-weight: bold; color: grey; padding-top: 7px; padding-left: 5px; padding-right: 5px;">장소 검색</p>
+                <input  type="text" style="font-size: 1.4rem" id ="selectPlaceMarker" placeholder="장소 입력">
+                <button class="searchPlace" id="searchPlace"><i class="bi bi-search" style="font-size: 18px;"></i></button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+
+
+<div id="relatedKeywords" style="font-size: 15px; position: fixed; z-index: 9; left: 667px; top: 90px; background-color: white; border: 1px solid #ccc; max-height: 200px; width: 12vw; padding: 5px; overflow-y: auto; display: none;"></div>
+</div>
+
+
+
+
+
+</body>
+
+</html>

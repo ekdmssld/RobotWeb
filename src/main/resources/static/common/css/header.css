@@ -1,0 +1,167 @@
+* {
+    box-sizing: border-box; /* 패딩과 테두리를 전체 너비와 높이에 포함 */
+    margin: 0;
+    padding: 0;
+}
+/* 기본 body 스타일 */
+body, html{
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+/* 헤더 컨테이너 스타일 */
+.header-container {
+    display: flex; /* 플렉스 박스 레이아웃 사용 */
+    flex-direction: row; /* 플렉스 방향을 수평으로 설정 */
+    align-items: stretch; /* 아이템을 수직 중앙 정렬 */
+    padding: 10px 0px;
+    background-color: #1a305f;
+    border-bottom: 1px solid #0e2149; /* 진한 하단 경계선 추가 */
+    position: relative;
+    font-size: 15px;
+}
+.header-left,.header-center,.header-right{
+    display: flex;
+    align-items: center;
+}
+
+/* 헤더 왼쪽 부분 스타일 */
+.header-left {
+    flex:0.2;
+    align-items: center; /* 아이템을 수직 중앙 정렬 */
+    text-decoration: none; /* 링크의 기본 밑줄 제거 */
+}
+
+/* 헤더 왼쪽 이미지 스타일 */
+.header-left img {
+    margin:0px 5px;
+    width: 30px;
+    height: 30px;
+}
+
+/* 헤더 왼쪽 텍스트 스타일 */
+.header-left span {
+    padding-left: 5px; /* 왼쪽 패딩 설정 */
+    padding-top: 5px; /* 상단 패딩 설정 */
+    padding-bottom: 5px;
+    line-height: 5px; /* 줄 높이 설정 */
+    font-size: 20px; /* 폰트 크기 설정 */
+    text-decoration: none; /* 링크의 기본 밑줄 제거 */
+    color: white; /* 텍스트 색상 설정 */
+    font-weight: bold; /* 텍스트 두께 설정 */
+}
+
+/* 헤더 왼쪽 링크 스타일 */
+.header-left a {
+    text-decoration: none; /* 링크의 기본 밑줄 제거 */
+    color: inherit; /* 부모 요소의 텍스트 색상 상속 */
+    display: flex; /* 플렉스 박스 레이아웃 사용 */
+    align-items: center; /* 아이템을 수직 중앙 정렬 */
+    text-align: center; /* 텍스트를 중앙 정렬 */
+}
+
+/* 헤더 중앙 부분 스타일 */
+.header-center {
+    flex:2;
+    display: inline-block; /* 인라인 블록 레이아웃 사용 */
+    text-align: center; /* 텍스트를 중앙 정렬 */
+    margin:0;
+}
+
+/* 헤더 중앙 텍스트 스타일 */
+.header-center p {
+    padding: 5px; /* 상하좌우 패딩 설정 */
+    text-decoration: none; /* 링크의 기본 밑줄 제거 */
+    color: white; /* 텍스트 색상 설정 */
+    font-weight: bold; /* 텍스트 두께 설정 */
+    font-size: 20px; /* 폰트 크기 설정 */
+    margin:0;
+}
+
+/* 헤더 오른쪽 부분 스타일 */
+.header-right {
+    flex: 0.3;
+    display: flex; /* 플렉스 박스 레이아웃 사용 */
+    align-items: center; /* 아이템을 수직 중앙 정렬 */
+    background-color: #37538e; /* 배경색 설정 */
+    list-style-type: none; /* 목록 스타일 제거 */
+    cursor: pointer; /* 커서 모양을 손가락으로 변경 */
+    border-left: 0.5px solid #0e2149; /* 왼쪽 경계선 추가 */
+    box-sizing: border-box; /* 패딩과 테두리를 요소의 전체 너비와 높이에 포함 */
+}
+
+/* 헤더 오른쪽 아이콘 및 사용자 정보 스타일 */
+.header-right i {
+    color: white; /* 텍스트 색상 설정 */
+    display: flex; /* 플렉스 박스 레이아웃 사용 */
+    align-items: center; /* 아이템을 수직 중앙 정렬 */
+    justify-content: center; /* 아이템을 수평 중앙 정렬 */
+    border-right: 0.5px solid #0e2149; /* 오른쪽 경계선 추가 */
+    cursor: pointer; /* 커서 모양을 손가락으로 변경 */
+    padding: 0 10px; /* 좌우 패딩 설정 */
+}
+.header-right i.no-border {
+    border-right: none; /* 오른쪽 경계선 제거 */
+    margin-left: auto;
+
+}
+/* 헤더 오른쪽 사용자 정보 스타일 */
+.user-info {
+    color:white;
+    display: flex; /* 플렉스 박스 레이아웃 사용 */
+    align-items: center; /* 아이템을 수직 중앙 정렬 */
+    justify-content: center; /* 아이템을 수평 중앙 정렬 */
+    font-weight: bold; /* 텍스트 두께 설정 */
+    font-size: 14px; /* 폰트 크기 설정 */
+    margin: 0px 50px 0px 10px; /* 왼쪽 여백 설정 */
+    cursor: pointer; /* 커서 모양을 손가락으로 변경 */
+    padding: 0 10px; /* 좌우 패딩 설정 */
+}
+
+/* 탭 컨테이너 스타일 */
+.header-tabs-container {
+    display: flex; /* 플렉스 박스 레이아웃 사용 */
+    flex-direction: row; /* 플렉스 방향을 수평으로 설정 */
+    background-color: #1a305f; /* 배경색 설정 */
+    align-items: center; /* 아이템을 수직 중앙 정렬 */
+    justify-content: flex-start; /* 아이템을 왼쪽 정렬 */
+    border-bottom: 1px solid #0e2149; /* 진한 하단 경계선 추가 */
+}
+
+/* 탭 스타일 */
+.tab {
+    flex: 0 0 auto; /* 플렉스 아이템이 기본 크기 유지 */
+    width: 150px;
+    text-align: center; /* 텍스트를 중앙에 배치 */
+    line-height: 35px; /* 탭의 높이와 동일하게 텍스트 수직 정렬 */
+    color: white; /* 텍스트 색상 설정 */
+    font-size: 14px; /* 폰트 크기 설정 */
+    font-weight: bold; /* 텍스트 두께 설정 */
+    cursor: pointer; /* 커서 모양을 손가락으로 변경 */
+    border-bottom: 3px solid transparent; /* 기본 상태에서는 투명한 하단 테두리 */
+    transition: background-color 0.3s, border-bottom-color 0.3s; /* 배경색 및 하단 테두리 색상에 부드러운 전환 효과 추가 */
+    padding: 0 15px; /* 좌우 패딩 설정 */
+    border-right: 0.5px solid #1d3a6c; /* 오른쪽 경계선 추가 */
+}
+
+/* 탭 호버 상태 스타일 */
+.tab:hover {
+    background-color: #37538e; /* 마우스를 올렸을 때 배경색 변경 */
+    border-bottom-color: #0b71e9; /* 마우스를 올렸을 때 하단 테두리 색상 변경 */
+}
+
+/* 활성 탭 스타일 */
+.tab.active {
+    border-bottom-color: #0b71e9; /* 활성 탭에 하얀색 하단 테두리 추가 */
+    background-color: #37538e; /* 활성 탭의 배경색 변경 */
+}
+
+/* 탭 링크 스타일 */
+.tab a {
+    text-decoration: none; /* 링크의 밑줄 제거 */
+    color: inherit; /* 텍스트 색상 상속 */
+    display: block; /* 링크를 블록 레벨 요소로 변경하여 전체 탭 영역을 클릭 가능하게 함 */
+    height: 100%; /* 링크가 전체 탭 높이를 차지하도록 함 */
+}
+
+

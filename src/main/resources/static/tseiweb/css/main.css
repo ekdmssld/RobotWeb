@@ -1,0 +1,385 @@
+.contents {
+  width: 100vw;
+  height: 100vh;
+  display: inline-flex;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+  background-color: black;
+}
+
+#analysisModal {
+  background-color: #0B173B;
+  display: none;
+  position: fixed;
+  overflow:auto;
+  z-index: 5;
+  left: 20%;
+  top: 17%;
+  /* width: 650px; */
+  width: 540px;
+  /* height: 700px; */
+  height: 440px;
+  margin: 0px;
+  font-size: 15px;
+
+  
+}
+
+
+
+
+#compareModal {
+  background-color: #0B173B;
+  margin: 0px;
+  display: none;
+  position: fixed;
+  overflow:auto;
+  z-index: 5;
+  left: 60%;
+  top: 17%;
+  /* width: 650px; */
+  width: 540px;
+  /* height: 700px; */
+  height: 460px;
+  font-size: 15px;
+}
+
+
+
+
+
+
+
+
+.close {
+  float: right;
+  cursor: pointer;
+}
+
+
+
+
+
+
+
+/* 운행내역 조회 */
+.table-filter {
+  background-color: white;
+  z-index: 9;
+  position: fixed;
+  left: 310px;
+  /* top: 100px; */
+  top: 200px;
+}
+
+.selection {
+  height: 10vh;
+}
+
+.selection p {
+  color: white;
+  font-weight: bold;
+  padding-top: 10px;
+  padding-left: 23px;
+}
+
+.map-top-menu {
+  background: #fff;
+  opacity: 0.95;
+  border: 1px solid #ddd;
+}
+
+.div-filter {
+}
+
+.table-filter {
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.table-filter tbody tr td {
+  width: auto;
+  padding: 0 3px;
+  display: inline-flex;
+  font-size: 0.1rem;
+}
+
+.table-filter tbody tr td input:not(.map-search-container input) {
+  width: 15vw;
+  padding: 5px;
+  border: 1px solid #ddd;
+}
+
+.table-filter tbody tr td select {
+  padding: 5px;
+  border: 1px solid #ddd;
+  width: 130px;
+}
+
+
+/* 조회 버튼 */
+.searchGPS {
+  border: 0;
+  color: #fff;
+  padding: 10px 25;
+  background-color: #4261BC;
+  cursor: pointer;
+  z-index: 9;
+  width: 70px;
+}
+
+.searchCar {
+  border: 0;
+  color: #fff;
+  padding: 10px 25;
+  background-color: #4261BC;
+  cursor: pointer;
+  z-index: 9;
+  width: 70px;
+}
+
+.searchPlace {
+  border: 0;
+  color: #fff;
+  padding: 10px 25;
+  background-color: #4261BC;
+  cursor: pointer;
+  z-index: 9;
+  width: 70px;
+}
+
+
+.searchGPS:hover {
+  background-color: #083bd0;
+}
+
+.dropdown {
+width: 100%;
+background-color: #30497D;
+color: white;
+border: 0px;
+text-align: center;
+}
+
+.scroll-indicator {
+position: relative;
+top: 420px;
+left: 50%;
+transform: translateX(-50%);
+font-size: 20px;
+font-weight: bold;
+color: #ffffff;
+background-color: rgba(0, 0, 0, 0.1);
+padding: 10px;
+border-radius: 5px;
+cursor: pointer;
+opacity: 0;
+transition: opacity 0.3s ease;
+z-index: 10;
+}
+
+.scroll-indicator.show {
+opacity: 1;
+}
+
+.modal_2-content {
+color: white;
+z-index: 6;
+background-color: #0B173B;
+padding: 20px; /* 수정된 부분 */
+width: 100%;
+height: 100%;
+max-height: 300px;
+
+}
+
+.modal_2-content table {
+margin-bottom: 20px;
+}
+
+.modal_2-content table th,
+.modal_2-content table td {
+padding-left: 6px;
+border-bottom: 1px solid #30497D;
+text-align: left;
+}
+
+.modal_2-content table th {
+background-color: #30497D;
+}
+
+.modal_1-content {
+color: white;
+z-index: 6;
+background-color: #0B173B;
+padding: 20px; /* 수정된 부분 */
+width: 100%;
+height: 100%;
+max-height: 300px;
+}
+
+.modal_1-content table {
+
+margin-bottom: 20px;
+}
+
+.modal_1-content table th,
+.modal_1-content table td {
+padding: 8px;
+border-bottom: 1px solid #30497D;
+text-align: left;
+}
+
+.modal_1-content table th {
+  width: 100px;
+  background-color: #30497D;
+}
+
+.modal_1-content div {
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: bold;
+  color: white;
+}
+
+.modal_1-content > div {
+  display: flex;
+  align-items: center;
+}
+#prevention-button {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#prevention-button button.hidden {
+  display: none;
+}
+#prevention-button button{
+  padding: 10px 20px;
+}
+
+
+.modal_2-content div {
+margin-bottom: 10px;
+font-size: 13px;
+font-weight: bold;
+color: white;
+}
+
+
+
+.marker-filter {
+  background-color: white;
+  z-index: 9;
+  position: fixed;
+  left: 310px;
+  /* top: 50px; */
+  top: 150px;
+}
+
+.marker-filter {
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.marker-filter tbody tr td {
+  width: auto;
+  padding: 0 3px;
+  display: inline-flex;
+  font-size: 0.1rem;
+}
+
+.marker-filter tbody tr td input:not(.map-search-container input) {
+  width: 15vw;
+  padding: 5px;
+  border: 1px solid #ddd;
+}
+
+.marker-filter tbody tr td select {
+  padding: 5px;
+  border: 1px solid #ddd;
+  width: 90px;
+}
+
+
+
+.marker-filter2 {
+  background-color: white;
+  z-index: 9;
+  position: fixed;
+  left: 590px;
+  /* top: 50px; */
+  top: 150px;
+}
+
+.marker-filter2 {
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.marker-filter2 tbody tr td {
+  width: auto;
+  padding: 0 3px;
+  display: inline-flex;
+  font-size: 0.1rem;
+}
+
+.marker-filter2 tbody tr td input:not(.map-search-container input) {
+  width: 230px;
+  padding: 5px;
+  border: 1px solid #ddd;
+}
+
+
+.marker-filter2 tbody tr td select {
+  padding: 5px;
+  border: 1px solid #ddd;
+  width: 90px;
+}
+
+
+        /* li 요소에 마우스를 올렸을 때 배경색 변경 */
+#relatedKeywords ul li:hover {
+  background-color: lightgray;
+  cursor: pointer; /* 포인터 커서로 변경 */
+}
+
+
+
+input[type="range"] {
+  width: 30%;    /* 가로 크기 설정 */
+  height: 1%;
+  z-index: 9;
+  position: fixed;
+  left: 35%;
+  top: 80%
+}
+
+/* 마우스를 올릴 때 투명도 증가 */
+input[type="range"]:hover {
+  opacity: 1;
+}
+
+/* 프로그래스 바 부분 디자인 */
+input[type="range"]::-webkit-slider-runnable-track {
+  background: #1d4497; /* 배경색 설정 */
+  border-radius: 5px; /* 둥근 모서리 설정 */
+}
+
+/* 슬라이더 손잡이 디자인 */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px; /* 손잡이 너비 */
+  height: 20px; /* 손잡이 높이 */
+  border-radius: 100%; 
+  border: 2px solid #1d4497; /* 테두리 설정 */
+  cursor: pointer; /* 커서 설정 */
+  transition: background-color 0.15s ease-in-out; /* 전환 효과 설정 */
+}
+
+/* 슬라이더 손잡이를 드래그할 때 배경색 변경 */
+input[type="range"]::-webkit-slider-thumb:hover {
+  background-color: #1d4497;
+}
