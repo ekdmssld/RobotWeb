@@ -19,7 +19,7 @@
   left: 20%;
   top: 17%;
   /* width: 650px; */
-  width: 540px;
+  width: 300px;
   /* height: 700px; */
   height: 440px;
   margin: 0px;
@@ -27,6 +27,11 @@
 
   
 }
+#integratedTable th, #integratedTable td {
+  padding: 4px 8px;
+  font-size: 13px;
+}
+
 
 
 
@@ -123,7 +128,7 @@
 .searchGPS {
   border: 0;
   color: #fff;
-  padding: 10px 25;
+  padding: 10px 25px;
   background-color: #4261BC;
   cursor: pointer;
   z-index: 9;
@@ -133,7 +138,7 @@
 .searchCar {
   border: 0;
   color: #fff;
-  padding: 10px 25;
+  padding: 10px 25px;
   background-color: #4261BC;
   cursor: pointer;
   z-index: 9;
@@ -143,7 +148,7 @@
 .searchPlace {
   border: 0;
   color: #fff;
-  padding: 10px 25;
+  padding: 10px 25px;
   background-color: #4261BC;
   cursor: pointer;
   z-index: 9;
