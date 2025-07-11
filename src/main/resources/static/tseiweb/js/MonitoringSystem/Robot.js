@@ -90,6 +90,10 @@ async function fetchRobotPath(date, carCode) {
 
         if (data && data.length > 0) {
             drawRobotMarkers(data);
+
+            const center = new google.maps.LatLng(data[0].latitude, data[0].longitude);
+            window.robotMap.setCenter(center);
+            window.robotMap.setZoom(17);  // 필요시 확대 설정
         } else {
             console.warn("❗ 해당 날짜의 로봇 경로 없음");
         }
@@ -132,11 +136,24 @@ function drawRobotMarkers(dataList) {
 
 
         const marker = new google.maps.Marker({
-            position,
+            position: { lat: item.latitude, lng: item.longitude },
             map: window.robotMap,
-            icon: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-            title: `로봇 위치 (${item.date})`
-        });
+            icon: {
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 10,
+                fillColor: "red",
+                fillOpacity: 1.0,
+                strokeColor: "#FFFFFF",
+                strokeOpacity: 1.0,
+                strokeWeight: 2,
+            },
+            label: {
+                text: String(index + 1),
+                color: "white",
+                fontSize: "12px",
+                fontWeight: "bold"
+            },
+            title: `로봇 위치 (${item.date})`});
 
         marker.detailId = item.detailId;
         marker.carCode = item.carCode;
@@ -176,7 +193,7 @@ function drawRobotMarkers(dataList) {
         window.robotPolyline = new google.maps.Polyline({
             path,
             geodesic: true,
-            strokeColor: "#00AAFF",
+            strokeColor: "red",
             strokeOpacity: 0.8,
             strokeWeight: 3,
         });

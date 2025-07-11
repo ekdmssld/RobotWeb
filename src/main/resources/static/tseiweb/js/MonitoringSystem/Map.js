@@ -136,35 +136,62 @@ window.drawRobotMarkers = function (dataList) {
   window.clearRobotMarkers();
   const path = [];
 
-  dataList.forEach(item => {
+  dataList.forEach((item, index) => {
+    const markerLabel = `${index + 1}`;
+    const position = { lat: item.latitude, lng: item.longitude };
+
     const marker = new google.maps.Marker({
-      position: { lat: item.latitude, lng: item.longitude },
+      position,
       map: window.robotMap,
-      icon: "/static/icons/robot.png",
-      title: `로봇 위치 (${item.date})`,
+      label: {
+        text: markerLabel,
+        color: "#fff",
+        fontSize: "12px",
+        fontWeight: "bold"
+      },
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        fillColor: "red",
+        fillOpacity: 0.9,
+        strokeWeight: 1,
+        strokeColor: "white",
+        scale: 10
+      },
+      title: `측정시각: ${item.date}`,
     });
 
+    // 좌측 패널에 데이터 표시
     marker.addListener("click", () => {
+      if (typeof fillCoordinateTable === "function") {
+        fillCoordinateTable(item.latitude, item.longitude, item.date);
+      }
+      if (typeof fillOdorDirection === "function") {
+        fillOdorDirection(item.windDirection ?? "-");
+      }
+      // 필요한 경우 chemical 모달도 호출
       if (typeof openChemicalModal === "function") {
         openChemicalModal(item.detailId);
       }
     });
+
     robotMarkers.push(marker);
     path.push(position);
   });
 
-  if(window.robotPolyline){
+  if (window.robotPolyline) {
     window.robotPolyline.setMap(null);
   }
+
   window.robotPolyline = new google.maps.Polyline({
-    path:path,
+    path: path,
     geodesic: true,
-    strokeColor:"00AAFF",
-    strokeOpacity:0.8,
-    strokeWeight:3
+    strokeColor: "red",
+    strokeOpacity: 0.8,
+    strokeWeight: 3
   });
   window.robotPolyline.setMap(window.robotMap);
 };
+
 
 window.clearRobotMarkers = function () {
   robotMarkers.forEach(marker => marker.setMap(null));
