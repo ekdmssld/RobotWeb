@@ -158,29 +158,37 @@ function drawRobotMarkers(dataList) {
         marker.detailId = item.detailId;
         marker.carCode = item.carCode;
 
-        marker.addListener('click', () => {
+        let currentOpenDetailId = null; // 전역 변수로 현재 열린 마커 추적
+
+        marker.addListener("click", () => {
             const detailId = marker.detailId;
             const carCode = marker.carCode;
 
-            if (!detailId || !carCode) {
-                alert("마커에 detailId 또는 carCode 정보가 없습니다.");
+            const modal = document.getElementById("analysisModal");
+
+            // ✅ 이전에 열려 있던 마커와 같으면 닫기만 하고 종료
+            if (currentOpenDetailId === detailId) {
+                if (modal) modal.style.display = "none";
+                currentOpenDetailId = null;
                 return;
             }
-            fillCoordinateTable(item.latitude, item.longitude, item.date);
-            fillOdorDirection(item.windDirection);
 
+            currentOpenDetailId = detailId; // 현재 클릭된 마커 저장
+
+            fillCoordinateTable(item.latitude, item.longitude, item.date);
+            fillOdorDirection(item.windDirection ?? "-");
 
             fetch(`/arims/robot/sensor-data?detailId=${detailId}&carCode=${carCode}`)
                 .then(res => res.json())
                 .then(data => {
-                    // console.log("🚀 받은 센서 데이터:", data);
-                    showSensorModal(data);
+                    showSensorModal(data); // 여기가 모달을 열고 있음
                 })
                 .catch(err => {
                     console.error("❌ 센서 데이터 호출 실패:", err);
                     alert("센서 데이터를 불러오는 데 실패했습니다.");
                 });
         });
+
 
 
 
