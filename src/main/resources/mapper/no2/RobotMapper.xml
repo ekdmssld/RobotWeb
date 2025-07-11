@@ -20,20 +20,6 @@
         AND update_time BETWEEN #{startTime} AND #{endTime}
     </select>
 
-
-
-
-    <select id="getRobotRoute" resultType="com.tsei.www.dto.robot.RobotLocationDTO">
-        SELECT
-            lat AS latitude,
-            lon AS longitude,
-            update_time AS date
-        FROM car_detail
-        WHERE car_code = #{carCode}
-          AND update_time BETWEEN #{startTime} AND #{endTime}
-        ORDER BY update_time
-    </select>
-
     <select id="getSensorDetailInfo" resultType="com.tsei.www.dto.robot.RobotSensorDTO">
         SELECT
             s.sensor_info_id,
@@ -53,7 +39,7 @@
 
 
 
-
+<!--화학 반응 모달창-->
     <select id="getSensorDataByDetailId" resultType="com.tsei.www.dto.tracking.SensorDataDTO">
         SELECT
         s.sensor_info_id,
@@ -90,63 +76,11 @@
           AND reg_date = #{timestamp}
     </select>
 
-    <select id="getSensorData" resultType="com.tsei.www.dto.tracking.SensorDataDTO">
-        SELECT
-            sensor_info_id,
-            CASE sensor_info_id
-                WHEN 2 THEN 'C7H8'
-                WHEN 3 THEN '(CH3)3N'
-                WHEN 4 THEN 'VOC'
-                WHEN 5 THEN 'CO2'
-                WHEN 6 THEN 'HCHO'
-                WHEN 7 THEN 'H2S'
-                WHEN 8 THEN 'NH3'
-                WHEN 9 THEN 'CH3SH'
-                WHEN 10 THEN 'SO2'
-                WHEN 11 THEN 'NO2'
-                WHEN 12 THEN 'CO'
-                END AS gasName,
-            ROUND(ppm_ref_go, 4) AS ppm
-        FROM sensor_data
-        WHERE car_code = #{carCode}
-          AND timestamp = #{timestamp}
-          AND sensor_info_id BETWEEN 2 AND 12
-    </select>
-
     <select id="getAvailableDates" resultType="string">
         SELECT DISTINCT DATE(update_time)
         FROM car_detail
         WHERE car_code = #{carCode}
         ORDER BY DATE(update_time) DESC
-    </select>
-
-<!--&lt;!&ndash;    로봇 경로 추적&ndash;&gt;-->
-<!--    <select id="getLatestSensorWithInfo" resultType="com.tsei.www.dto.robot.RobotSensorDTO">-->
-<!--        SELECT-->
-<!--            lsd.car_code AS carCode,-->
-<!--            lsd.sensor_info_id AS sensorInfoId,-->
-<!--            si.model_no AS sensorModel,-->
-<!--            si.manufacturer,-->
-<!--            si.target_gas AS targetGas,-->
-<!--            lsd.ppm_ref_go AS ppm,-->
-<!--            lsd.timestamp-->
-<!--        FROM-->
-<!--            latest_sensor_data lsd-->
-<!--                JOIN-->
-<!--            sensor_info si ON lsd.sensor_info_id = si.id-->
-<!--        WHERE-->
-<!--            (-->
-<!--                (lsd.car_code = 'R1' AND DATE(lsd.timestamp) = '2024-08-13') OR-->
-<!--            (lsd.car_code = 'R2' AND DATE(lsd.timestamp) = '2025-04-17')-->
-<!--        )-->
-<!--        ORDER BY-->
-<!--            lsd.timestamp-->
-<!--    </select>-->
-
-    <select id="getPpmBySensorId" resultType="float">
-        SELECT ppm_ref_go AS ppmRefGo
-        FROM sensor_data
-        WHERE id=#{sensorId}
     </select>
 
 
