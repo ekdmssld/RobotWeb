@@ -23,9 +23,9 @@ public class robotRestController {
             @RequestParam String startTime,
             @RequestParam String endTime,
             @RequestParam String carCode) {
-        System.out.println("요청 받은 carCode = " + carCode);
-        System.out.println("시작시간 = " + startTime);
-        System.out.println("종료시간 = " + endTime);
+//        System.out.println("요청 받은 carCode = " + carCode);
+//        System.out.println("시작시간 = " + startTime);
+//        System.out.println("종료시간 = " + endTime);
 
         return robotService.getRobotRouteByDate(carCode, startTime, endTime);
     }
@@ -65,13 +65,6 @@ public class robotRestController {
         }
 
         List<SensorDataDTO> sensors = robotService.getSensorData(carCode, timestamp);
-        for (SensorDataDTO sensor : sensors) {
-            result.put(sensor.getGasName(), sensor.getPpm());
-        }
-
-        for (SensorDataDTO sensor : robotService.getSensorData(carCode, timestamp)) {
-            result.put(sensor.getGasName(), sensor.getPpm());
-        }
 
         return ResponseEntity.ok(result);
     }

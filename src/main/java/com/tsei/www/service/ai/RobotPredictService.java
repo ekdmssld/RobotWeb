@@ -1,4 +1,4 @@
-package com.tsei.www.service.robot;
+package com.tsei.www.service.ai;
 
 import java.util.Map;
 

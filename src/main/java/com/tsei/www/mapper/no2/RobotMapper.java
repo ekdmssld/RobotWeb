@@ -28,7 +28,7 @@ public interface RobotMapper {
     List<chemicalDataDTO> getRobotCsvContent(@Param("detailId") Long detailId);
 
     List<SensorDataDTO> getSensorDataByDetailId(@Param("detailId") Long detailId,
-                                                @Param("sensorType") String sensorType);
+                                                @Param("carCode") String carCode);
 
     List<RobotPathDTO> getRobotMarkers(@Param("carCode") String carCode, @Param("date") String date);
 

@@ -6,17 +6,22 @@
 <mapper namespace="com.tsei.www.mapper.no2.RobotMapper">
 
     <!-- 1. 로봇 이동 경로 조회 (car_detail 테이블에서 car_code = 'robot1') -->
-    <select id="getRobotRouteByDate"
-            resultType="com.tsei.www.dto.robot.RobotLocationDTO">
+    <select id="getRobotRouteByDate" resultType="com.tsei.www.dto.robot.RobotLocationDTO">
         SELECT
-            lat AS latitude,
-            lon AS longitude,
-            update_time AS date
+        idx AS detailId,                        <!-- ✅ 수정됨 -->
+        lat AS latitude,
+        lon AS longitude,
+        update_time AS `date`,                  <!-- ✅ 컬럼명도 실제로 존재하는 것으로 -->
+        NULL AS windDirection,                  <!-- 임시 빈 값 허용 시 -->
+        NULL AS windSpeed,
+        car_code AS carCode
         FROM car_detail
         WHERE car_code = #{carCode}
-          AND update_time BETWEEN #{startTime} AND #{endTime}
-        ORDER BY update_time
+        AND update_time BETWEEN #{startTime} AND #{endTime}
     </select>
+
+
+
 
     <select id="getRobotRoute" resultType="com.tsei.www.dto.robot.RobotLocationDTO">
         SELECT
@@ -50,14 +55,25 @@
 
 
     <select id="getSensorDataByDetailId" resultType="com.tsei.www.dto.tracking.SensorDataDTO">
-        SELECT sd.*, si.model_no, si.manufacturer
-        FROM sensor_data sd
-                 JOIN sensor_info si ON sd.sensor_info_id = si.id
-        WHERE sd.car_code = #{carCode}
-          AND sd.timestamp = (
-            SELECT update_time FROM car_detail WHERE idx = #{detailId}
+        SELECT
+        s.sensor_info_id,
+        i.target_gas AS gasName,              <!-- ✅ 센서명 -->
+        ROUND(s.ppm_ref_go, 4) AS ppm,
+        s.rs,
+        s.ro,
+        s.ref_factor AS ref
+        FROM sensor_data s
+        JOIN sensor_info i ON s.sensor_info_id = i.id
+        WHERE s.timestamp = (
+        SELECT update_time FROM car_detail WHERE idx = #{detailId}
         )
+        AND s.car_code = #{carCode}
+        AND s.sensor_info_id BETWEEN 1 AND 12
     </select>
+
+
+
+
 
     <select id="getRobotMarkers" resultType="com.tsei.www.dto.robot.RobotPathDTO">
         SELECT update_time, lat, lon, theta, volt, control_mode, error_code, measure_flag
@@ -76,6 +92,7 @@
 
     <select id="getSensorData" resultType="com.tsei.www.dto.tracking.SensorDataDTO">
         SELECT
+            sensor_info_id,
             CASE sensor_info_id
                 WHEN 2 THEN 'C7H8'
                 WHEN 3 THEN '(CH3)3N'

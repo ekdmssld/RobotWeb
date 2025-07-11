@@ -118,15 +118,19 @@ function drawRobotMarkers(dataList) {
     clearRobotMarkers();  // 기존 마커/선 제거
     const path = [];
 
-    dataList.forEach((item) => {
-        // console.log("💬 마커 좌표:", item.latitude, item.longitude);  // 디버깅용
+    dataList.forEach((item, index) => {
+        const position = { lat: item.latitude, lng: item.longitude };
+
+        if (index === 0) {
+            window.robotMap.setCenter(position);   // ← 핵심
+        }
 
         if (!item.latitude || !item.longitude) {
             console.warn("❌ 좌표 없음 또는 잘못된 데이터:", item);
             return;
         }
 
-        const position = { lat: item.latitude, lng: item.longitude };
+
         const marker = new google.maps.Marker({
             position,
             map: window.robotMap,
@@ -134,7 +138,34 @@ function drawRobotMarkers(dataList) {
             title: `로봇 위치 (${item.date})`
         });
 
-        marker.addListener("click", () => openChemicalModal(item.sensorId));
+        marker.detailId = item.detailId;
+        marker.carCode = item.carCode;
+
+        marker.addListener('click', () => {
+            const detailId = marker.detailId;
+            const carCode = marker.carCode;
+
+            if (!detailId || !carCode) {
+                alert("마커에 detailId 또는 carCode 정보가 없습니다.");
+                return;
+            }
+            fillCoordinateTable(item.latitude, item.longitude, item.date);
+            fillOdorDirection(item.windDirection);
+
+
+            fetch(`/arims/robot/sensor-data?detailId=${detailId}&carCode=${carCode}`)
+                .then(res => res.json())
+                .then(data => {
+                    // console.log("🚀 받은 센서 데이터:", data);
+                    showSensorModal(data);
+                })
+                .catch(err => {
+                    console.error("❌ 센서 데이터 호출 실패:", err);
+                    alert("센서 데이터를 불러오는 데 실패했습니다.");
+                });
+        });
+
+
 
         window.robotMarkers.push(marker);
         path.push(position);
@@ -180,5 +211,54 @@ async function openChemicalModal(sensorId) {
         alert("센서 정보를 불러올 수 없습니다.");
     }
 }
+function showSensorModal(sensorDataList) {
+    if (!Array.isArray(sensorDataList)) {
+        alert("⚠️ 센서 데이터를 불러오지 못했습니다.");
+        return;
+    }
+    const tableBody = document.querySelector("#integratedTable tbody");
+    const tableHead = document.querySelector("#integratedTable thead");
+    tableBody.innerHTML = "";
+    tableHead.innerHTML = "";
+
+    // 🧪 헤더 설정 (센서명, PPM, REF, RS, RO 등)
+    const headers = ["센서명", "PPM", "REF", "RS", "RO"];
+    const headRow = document.createElement("tr");
+    headers.forEach(title => {
+        const th = document.createElement("th");
+        th.textContent = title;
+        headRow.appendChild(th);
+    });
+    tableHead.appendChild(headRow);
+
+    // 📊 센서 데이터 행 구성
+    sensorDataList.forEach(sensor => {
+        const row = document.createElement("tr");
+        const values = [
+            sensor.gasName,  // 센서 이름
+            sensor.ppm,      // ppm
+            sensor.ref,      // ppm_ref_go 혹은 비슷한 값
+            sensor.rs,
+            sensor.ro
+        ];
+        values.forEach(val => {
+            const td = document.createElement("td");
+            td.textContent = val;
+            row.appendChild(td);
+        });
+        tableBody.appendChild(row);
+    });
+
+    // 👁 모달 표시
+    const modal = document.getElementById("analysisModal");
+    modal.style.display = "block";
+}
+
+window.addEventListener("click", function (e) {
+    const modal = document.getElementById("analysisModal");
+    if (e.target === modal) {
+        modal.style.display = "none";
+    }
+});
 
 

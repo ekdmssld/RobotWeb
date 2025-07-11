@@ -10,4 +10,7 @@ public class location {
     private float latitude;
     private float longitude;
     private String date;
+    private Long detailId;
+    private String carCode;
+
 }
