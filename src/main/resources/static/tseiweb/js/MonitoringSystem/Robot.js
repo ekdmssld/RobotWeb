@@ -13,11 +13,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await window.robotMapInit();
 
-    const carCode = "R1";
+    // const carCode = "R1";
+    // const fixedDate = fixedDates[carCode];
+
+    const carCode = document.getElementById("carCodeSelect").value;
     const fixedDate = fixedDates[carCode];
 
-    document.getElementById("carCodeSelect").value = carCode;
-    await fetchRobotPath(fixedDate, carCode);
+    if (carCode && fixedDate) {
+        console.log("✅ 초기 carCode 있음:", carCode);
+        await fetchRobotPath(fixedDate, carCode);
+    } else {
+        console.log("⚠️ 초기 carCode 없음, fetch 생략");
+        document.getElementById("loading-anim").style.display = "none";  // 👈 로딩 중 해제
+    }
 
     // 로봇 선택 이벤트
     document.getElementById("carCodeSelect").addEventListener("change", handleCarCodeChange);
@@ -34,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await handleCarCodeChange(); // 초기 날짜 목록 로딩
 });
 
-// ✅ 구글 맵 로딩 대기
+//구글 맵 로딩 대기
 function waitForGoogleMaps() {
     return new Promise(resolve => {
         const check = () => {
@@ -45,7 +53,7 @@ function waitForGoogleMaps() {
     });
 }
 
-// ✅ 로봇 날짜 목록 불러오기
+//로봇 날짜 목록 불러오기
 async function handleCarCodeChange() {
     const carCode = document.getElementById("carCodeSelect").value;
     try {
@@ -57,7 +65,7 @@ async function handleCarCodeChange() {
     }
 }
 
-// ✅ 날짜 select 렌더링
+// 날짜 select 렌더링
 function renderDateOptions(dates, carCode) {
     const dateSelect = document.getElementById("availableDates");
     if (!dateSelect) return;
@@ -77,7 +85,7 @@ function renderDateOptions(dates, carCode) {
     });
 }
 
-// ✅ 경로 조회
+// 경로 조회
 async function fetchRobotPath(date, carCode) {
     const startTime = `${date} 00:00:00`;
     const endTime = `${date} 23:59:59`;
