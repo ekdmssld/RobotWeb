@@ -60,7 +60,7 @@
 <ul class="notifications"></ul>
 
 <!-- 로딩 애니메이션 -->
-<div id="loading-anim">
+<div id="loading-anim" style="display: none">
     <div class="center">
         <div class="ring"></div>
         <p>
@@ -111,7 +111,10 @@
                     <option value="R1">로봇 R1</option>
                     <option value="R2">로봇 R2</option>
                 </select>
-                <select id="availableDates" style="max-height: 150px; overflow-y: auto;"></select>
+                <select id="availableDates">
+                    <option value="" disabled selected >날짜 선택</option>
+                </select>
+<!--                <select id="availableDates" style="max-height: 150px; overflow-y: auto;"></select>-->
                 <button id="searchRobot">로봇 경로 조회</button>
             </td>
         </tr>

@@ -16,27 +16,44 @@ document.addEventListener("DOMContentLoaded", async () => {
     // const carCode = "R1";
     // const fixedDate = fixedDates[carCode];
 
-    const carCode = document.getElementById("carCodeSelect").value;
-    const fixedDate = fixedDates[carCode];
-
-    if (carCode && fixedDate) {
-        console.log("✅ 초기 carCode 있음:", carCode);
-        await fetchRobotPath(fixedDate, carCode);
-    } else {
-        console.log("⚠️ 초기 carCode 없음, fetch 생략");
-        document.getElementById("loading-anim").style.display = "none";  // 👈 로딩 중 해제
-    }
+    // const carCode = document.getElementById("carCodeSelect").value;
+    // const fixedDate = fixedDates[carCode];
+    //
+    // if (carCode && fixedDate) {
+    //     console.log("✅ 초기 carCode 있음:", carCode);
+    //     await fetchRobotPath(fixedDate, carCode);
+    // } else {
+    //     console.log("⚠️ 초기 carCode 없음, fetch 생략");
+    //     document.getElementById("loading-anim").style.display = "none";  // 👈 로딩 중 해제
+    // }
 
     // 로봇 선택 이벤트
     document.getElementById("carCodeSelect").addEventListener("change", handleCarCodeChange);
 
     // 조회 버튼
     document.getElementById("searchRobot").addEventListener("click", () => {
-        const carCode = document.getElementById("carCodeSelect").value;
-        const fixedDate = fixedDates[carCode];
-        if (!fixedDate) return alert("해당 로봇의 날짜가 지정되지 않았습니다.");
+        document.getElementById("loading-anim").style.display = "block";
 
-        fetchRobotPath(fixedDate, carCode);
+        const carCode = document.getElementById("carCodeSelect").value;
+        // const fixedDate = fixedDates[carCode];
+        // if (!fixedDate) return alert("해당 로봇의 날짜가 지정되지 않았습니다.");
+        const date = document.getElementById("availableDates").value;
+        if(!carCode){
+            alert("로봇을 선택해주세요");
+            return;
+        }
+        if(!date){
+            alert("날짜를 선택해주세요");
+            return;
+        }
+
+        if (!carCode || !date) {
+            alert("로봇과 날짜를 선택해주세요");
+            document.getElementById("loading-anim").style.display = "none"; // 혹시 몰라 안전하게 추가
+            return;
+        }
+
+        fetchRobotPath(date, carCode);
     });
 
     await handleCarCodeChange(); // 초기 날짜 목록 로딩
@@ -56,34 +73,67 @@ function waitForGoogleMaps() {
 //로봇 날짜 목록 불러오기
 async function handleCarCodeChange() {
     const carCode = document.getElementById("carCodeSelect").value;
-    try {
-        const res = await fetch(`/arims/robot/available-dates?carCode=${carCode}`);
-        const dates = await res.json();
-        renderDateOptions(dates, carCode);
-    } catch (err) {
-        console.error("날짜 불러오기 실패:", err);
-    }
+    const dateSelect = document.getElementById("availableDates");
+    dateSelect.innerHTML = `<option value="" disabled selected>📅 날짜 선택</option>`;
+
+    if (!carCode) return;
+
+    // ✅ 2023~2025 날짜 생성
+    const allDates = generateDateRange(
+        new Date("2024-01-01"),
+        new Date("2025-12-31")
+    );
+
+    renderDateOptions(allDates, carCode);  // 기존 방식 그대로 사용
 }
+
 
 // 날짜 select 렌더링
 function renderDateOptions(dates, carCode) {
     const dateSelect = document.getElementById("availableDates");
     if (!dateSelect) return;
-    dateSelect.innerHTML = "";
+    dates.reverse();
 
-    if (!Array.isArray(dates)) return console.warn("잘못된 날짜 형식:", dates);
+    // 기본 옵션 추가
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "📅 날짜 선택";
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    dateSelect.appendChild(defaultOption);
 
     dates.forEach(date => {
         const opt = document.createElement("option");
         opt.value = date;
         opt.textContent = date;
+
+        // 강조만 하고 선택은 하지 않음
         if (date === fixedDates[carCode]) {
             opt.style.backgroundColor = "gold";
             opt.style.fontWeight = "bold";
         }
+
         dateSelect.appendChild(opt);
     });
 }
+
+
+function generateDateRange(startDate, endDate) {
+    const dates = [];
+    let current = new Date(startDate);
+    const today = new Date();
+
+    while (current <= endDate && current <= today) {
+        const year = current.getFullYear();
+        const month = String(current.getMonth() + 1).padStart(2, "0");
+        const day = String(current.getDate()).padStart(2, "0");
+        dates.push(`${year}-${month}-${day}`);
+        current.setDate(current.getDate() + 1);
+    }
+
+    return dates;
+}
+
 
 // 경로 조회
 async function fetchRobotPath(date, carCode) {
