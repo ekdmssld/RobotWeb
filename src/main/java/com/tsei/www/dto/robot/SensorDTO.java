@@ -8,14 +8,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SensorDTO {
-    private Double ppmRefGo;
-    private Double temp;
-    private Double humi;
-    private Double pre;
-    private Double ratio;
-    private Double ppm;
-    private Double ppmGo;
-    private Double rs;
-    private Double ro;
-    private Double refFactor;
+    private Float ppmRefGo;
+    private Float temp;
+    private Float humi;
+    private Float pre;
+    private Float ratio;
+    private Float ppm;
+    private Float ppmGo;
+    private Float rs;
+    private Float ro;
+    private Float refFactor;
 }

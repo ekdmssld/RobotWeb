@@ -4,9 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "sensor_data")
@@ -16,18 +15,32 @@ import javax.persistence.Table;
 public class SensorDataEntity {
 
     @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
 
-    private Double ppmRefGo;
-    private Double temp;
-    private Double humi;
-    private Double pre;
-    private Double ratio;
-    private Double ppm;
-    private Double ppmGo;
-    private Double rs;
-    private Double ro;
-    private Double refFactor;
+    @Column(name = "car_code")
+    private String carCode;
 
-    // created_at 등 필요한 필드는 추가로 작성
+    @Column(name = "sensor_info_id")
+    private Integer sensorInfoId;
+
+    @Column(name = "ppm_ref_go")
+    private Float ppmRefGo;
+
+    private Float temp;
+    private Float humi;
+    private Float pre;
+    private Float ratio;
+    private Float ppm;
+
+    @Column(name = "ppm_go")
+    private Float ppmGo;
+
+    private Float rs;
+    private Float ro;
+
+    @Column(name = "ref_factor")
+    private Float refFactor;
+
+    private LocalDateTime timestamp;
 }
