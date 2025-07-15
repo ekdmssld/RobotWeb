@@ -84,23 +84,16 @@
     </div>
 </div>
 
-<!-- 비교 모달 (고농도 포함 여부) -->
-<div id="compareModal" class="modal2">
-    <div class="modal_2-content">
-        <div style="font-size: 15px;">사업장 고농도 상위 10가지 물질 포함 여부</div>
-        <table id="compareTable">
+<!-- robotAnalysisModal -->
+<div id="robotAnalysisModal" class="modal" style="display: none;">
+    <div id="robotModalHeader" class="modal-header">
+        <span class="close" onclick="document.getElementById('robotAnalysisModal').style.display='none'">×</span>
+    </div>
+    <div class="modal-body" style="padding: 10px;">
+        <table id="robotIntegratedTable">
             <thead></thead>
             <tbody></tbody>
         </table>
-    </div>
-</div>
-
-<div id="weatherModal" class="modal">
-    <div class="modal-content content">
-        <span class="close" onclick="document.getElementById('weatherModal').style.display='none';">
-            <h3>기상 정보</h3>
-            <div class="content"></div>
-        </span>
     </div>
 </div>
 

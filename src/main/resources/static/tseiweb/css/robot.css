@@ -26,7 +26,43 @@
     max-height: 80%;    /* ← 화면 넘지 않게 제한 */
     overflow-y: auto;   /* ← 내용 많으면 스크롤 */
 }
-#integratedTable th, #integratedTable td {
+.integratedTable th, .integratedTable td {
     padding: 4px 8px;
     font-size: 13px;
+}
+
+/* 🔷 robotAnalysisModal: analysisModal과 유사하게 */
+#robotAnalysisModal {
+    background-color: #0B173B;
+    display: none;
+    position: fixed;
+    overflow: auto;
+    z-index: 6;
+    left: 20%;
+    top: 17%;
+    width: 400px;
+    height: 450px;
+    font-size: 14px;
+    color: white;
+    border: 1px solid #30497D;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+}
+
+/* 🔷 모달 헤더 (드래그 영역) */
+#robotModalHeader {
+    background-color: #0B173B;
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+    cursor: move;
+}
+
+/* 🔷 테이블 스타일 */
+#robotIntegratedTable th, #robotIntegratedTable td {
+    padding: 4px 8px;
+    font-size: 13px;
+    border-bottom: 1px solid #30497D;
+}
+.modal_1-content table th{
+    background-color: #30497D;
 }

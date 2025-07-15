@@ -56,6 +56,21 @@ function clearTableText() {
   });
 }
 
+function fillOdorPrediction(predictionResult) {
+  const kind = predictionResult?.[0]?.pred_smell_kind ?? "-";
+  const strength = predictionResult?.[1]?.pred_smell_strength?.toFixed(1) ?? "-";
+
+  document.getElementById("odorkind").innerText = kind;
+  document.getElementById("odorstrength").innerText = strength;
+}
+
+function fillWeatherInfo(data) {
+  if (!data) return;
+  document.getElementById("leftTemp").innerText = data.wdTemp !== undefined ? `${data.wdTemp} ℃` : "-";
+  document.getElementById("leftHumi").innerText = data.wdHumi !== undefined ? `${data.wdHumi} %` : "-";
+  document.getElementById("leftWind").innerText = data.wdWds !== undefined ? `${data.wdWds} m/s` : "-";
+  document.getElementById("winddir").innerText = data.wdWdd !== undefined ? `${data.wdWdd} °` : "-";
+}
 
 // 반경 내 사업장 데이터 채우기
 function fillInRadiusTable(objects) {

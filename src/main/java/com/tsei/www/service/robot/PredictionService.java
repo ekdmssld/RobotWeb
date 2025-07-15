@@ -65,12 +65,12 @@ public class PredictionService {
                     new PredictionResultEntity(null, entry.getKey(), entry.getValue(), null)
             ).collect(Collectors.toList());
 
-            System.out.println("→ 저장할 예측값 수: " + results.size());
+//            System.out.println("→ 저장할 예측값 수: " + results.size());
             results.forEach(r -> System.out.println(r.getChemicalName() + " : " + r.getPredictedValue()));
             predictionResultRepository.saveAll(results);
-            System.out.println("✅ saveAll() 호출 완료");
+//            System.out.println("saveAll() 호출 완료");
         } else {
-            System.out.println("❌ 예측 결과 없음 또는 Flask 응답 실패");
+            System.out.println("예측 결과 없음 또는 Flask 응답 실패");
         }
     }
 }

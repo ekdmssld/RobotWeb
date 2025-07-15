@@ -21,18 +21,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const carCode = document.getElementById("carCodeSelect").value;
         const date = document.getElementById("availableDates").value;
-        if(!carCode){
-            alert("로봇을 선택해주세요");
-            return;
-        }
-        if(!date){
-            alert("날짜를 선택해주세요");
-            return;
-        }
 
         if (!carCode || !date) {
             alert("로봇과 날짜를 선택해주세요");
-            document.getElementById("loading-anim").style.display = "none"; // 혹시 몰라 안전하게 추가
+            document.getElementById("loading-anim").style.display = "none";
             return;
         }
 
@@ -41,6 +33,76 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await handleCarCodeChange(); // 초기 날짜 목록 로딩
 });
+
+//22가지 화학물질 데이터 불러오기
+async function fetchChemicalData(detailId){
+    try{
+        const response = await fetch(`/arims/arimsCarCsvContent?detail_id=${detailId}`);
+        if(!response.ok){
+            throw new Error("네트워크 응답 실패");
+        }
+        const data = await response.json();
+        return data.list || [];
+    }catch(error){
+        console.error("화학물질 데이터 불러오기 실패 : ", error);
+        return [];
+    }
+}
+/**
+ * 화학물질 데이터에 희석배수와 비율을 추가하여 정렬된 배열로 반환
+ * @param {Array} chemicalData
+ * @returns {Array} 희석배수 및 비율 계산된 배열
+ */
+function integrateChemicalData(chemicalData) {
+    let valueSum = 0;
+
+    // dilutionRate 계산
+    chemicalData.forEach((chemical) => {
+        chemical.minimumValue = chemical.msv;
+        chemical.dilutionRate = chemical.chemicalValue / chemical.minimumValue;
+        valueSum += chemical.dilutionRate;
+    });
+
+    // relativeRatio 계산
+    chemicalData.forEach((chemical) => {
+        chemical.relativeRatio = (chemical.dilutionRate / valueSum) * 100;
+    });
+
+    // 농도 기준 정렬 (내림차순)
+    return chemicalData.sort((a, b) => b.chemicalValue - a.chemicalValue);
+}
+/**
+ * 화학물질 데이터를 기반으로 악취 종류 및 세기를 예측하는 함수
+ * @param {Array} chemicalData - chemicalName, chemicalValue 포함된 객체 배열
+ * @returns {Promise<Array>} [{pred_smell_kind}, {pred_smell_strength}]
+ */
+async function odorPrediction(chemicalData) {
+    const preprocessing = chemicalData.map((element) => ({
+        material: element.chemicalName,
+        strength: element.chemicalValue,
+        area: '경주'
+    }));
+
+    try {
+        const response = await fetch("http://219.249.140.29:11234/arims/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(preprocessing)
+        });
+
+        const result = await response.json();
+        const parsed = JSON.parse(result.data);
+        return parsed;
+    } catch (err) {
+        console.error("odorPrediction() 오류:", err);
+        return [
+            { pred_smell_kind: "무취" },
+            { pred_smell_strength: 2.4 }
+        ];
+    }
+}
+
+
 
 //구글 맵 로딩 대기
 function waitForGoogleMaps() {
@@ -142,7 +204,7 @@ async function fetchRobotPath(date, carCode) {
     }
 }
 
-// ✅ 마커 초기화
+// 마커 초기화
 function clearRobotMarkers() {
     window.robotMarkers.forEach(marker => marker.setMap(null));
     window.robotMarkers = [];
@@ -152,7 +214,7 @@ function clearRobotMarkers() {
     }
 }
 
-// ✅ 마커 + 선 그리기
+// 마커 + 선 그리기
 function drawRobotMarkers(dataList) {
     if (!window.robotMarkers) window.robotMarkers = [];
     if (!window.robotPolyline) window.robotPolyline = null;
@@ -203,6 +265,16 @@ function drawRobotMarkers(dataList) {
             const carCode = marker.carCode;
             const timestamp = item.date;
 
+            //화학물질 모달 테스트용
+            (async () => {
+                const chemicalData = await fetchChemicalData(detailId);
+                const raw = await fetchChemicalData(marker.detailId);
+                const integrated = integrateChemicalData(raw);
+                const odorResult = await odorPrediction(integrated);
+                fillOdorPrediction(odorResult);
+                openRobotModal(integrated, odorResult); //
+            })();
+
             const modal = document.getElementById("analysisModal");
 
             // 이전에 열려 있던 마커와 같으면 닫기만 하고 종료
@@ -238,8 +310,8 @@ function drawRobotMarkers(dataList) {
                     return JSON.parse(text);
                 })
                 .then(data => {
-                    console.log("✅ 날씨 데이터 있음:", data);
-                    window.robotModal.openWeatherModal(data); // ✅ 여기 추가
+                    // console.log("✅ 날씨 데이터 있음:", data);
+                    fillWeatherInfo(data);
                 })
                 .catch(err => {
                     console.error("🚨 날씨 데이터 호출 실패", err);
@@ -267,7 +339,7 @@ function drawRobotMarkers(dataList) {
         });
         window.robotPolyline.setMap(window.robotMap);
     } else {
-        console.warn("⚠️ 경로 그릴 수 없음: 유효한 좌표 부족");
+        console.warn("경로 그릴 수 없음: 유효한 좌표 부족");
     }
 }
 
@@ -304,7 +376,7 @@ function showSensorModal(sensorDataList) {
     tableBody.innerHTML = "";
     tableHead.innerHTML = "";
 
-    // 🧪 헤더 설정 (센서명, PPM, REF, RS, RO 등)
+    // 헤더 설정 (센서명, PPM, REF, RS, RO 등)
     const headers = ["센서명", "PPM", "REF", "RS", "RO"];
     const headRow = document.createElement("tr");
     headers.forEach(title => {
@@ -314,7 +386,7 @@ function showSensorModal(sensorDataList) {
     });
     tableHead.appendChild(headRow);
 
-    // 📊 센서 데이터 행 구성
+    // 센서 데이터 행 구성
     sensorDataList.forEach(sensor => {
         const row = document.createElement("tr");
         const values = [
@@ -332,7 +404,7 @@ function showSensorModal(sensorDataList) {
         tableBody.appendChild(row);
     });
 
-    // 👁 모달 표시
+    // 모달 표시
     const modal = document.getElementById("analysisModal");
     modal.style.display = "block";
 }
