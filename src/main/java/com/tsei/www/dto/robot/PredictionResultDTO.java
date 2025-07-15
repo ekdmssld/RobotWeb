@@ -8,6 +8,5 @@ import java.util.Map;
 @Getter
 @Setter
 public class PredictionResultDTO {
-    private Long detailId;
-    private Map<String, Float> predictions; //화학 물질명 - 예측 값
+    private Map<String, Double> predictedValues; //chemical_name -> value
 }

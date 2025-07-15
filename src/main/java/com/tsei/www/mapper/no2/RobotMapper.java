@@ -42,6 +42,9 @@ public interface RobotMapper {
 
 //    모달창 띄우기 ppm_ref_go
     Float getPpmBySensorId(Long sensorId);
+    WeatherDTO findCloseWeather(@Param("carCode") String carCode,
+                                @Param("timestamp") String timestamp);
+
 }
 
 

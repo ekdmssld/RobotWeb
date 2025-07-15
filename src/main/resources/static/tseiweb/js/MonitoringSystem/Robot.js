@@ -1,4 +1,3 @@
-// 🟡 로봇별 고정된 날짜 (강조용)
 const fixedDates = {
     R1: "2024-08-13",
     R2: "2025-04-17"
@@ -13,20 +12,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await window.robotMapInit();
 
-    // const carCode = "R1";
-    // const fixedDate = fixedDates[carCode];
-
-    // const carCode = document.getElementById("carCodeSelect").value;
-    // const fixedDate = fixedDates[carCode];
-    //
-    // if (carCode && fixedDate) {
-    //     console.log("✅ 초기 carCode 있음:", carCode);
-    //     await fetchRobotPath(fixedDate, carCode);
-    // } else {
-    //     console.log("⚠️ 초기 carCode 없음, fetch 생략");
-    //     document.getElementById("loading-anim").style.display = "none";  // 👈 로딩 중 해제
-    // }
-
     // 로봇 선택 이벤트
     document.getElementById("carCodeSelect").addEventListener("change", handleCarCodeChange);
 
@@ -35,8 +20,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("loading-anim").style.display = "block";
 
         const carCode = document.getElementById("carCodeSelect").value;
-        // const fixedDate = fixedDates[carCode];
-        // if (!fixedDate) return alert("해당 로봇의 날짜가 지정되지 않았습니다.");
         const date = document.getElementById("availableDates").value;
         if(!carCode){
             alert("로봇을 선택해주세요");
@@ -74,11 +57,10 @@ function waitForGoogleMaps() {
 async function handleCarCodeChange() {
     const carCode = document.getElementById("carCodeSelect").value;
     const dateSelect = document.getElementById("availableDates");
-    dateSelect.innerHTML = `<option value="" disabled selected>📅 날짜 선택</option>`;
+    dateSelect.innerHTML = `<option value="" disabled selected>날짜 선택</option>`;
 
     if (!carCode) return;
 
-    // ✅ 2023~2025 날짜 생성
     const allDates = generateDateRange(
         new Date("2024-01-01"),
         new Date("2025-12-31")
@@ -97,7 +79,7 @@ function renderDateOptions(dates, carCode) {
     // 기본 옵션 추가
     const defaultOption = document.createElement("option");
     defaultOption.value = "";
-    defaultOption.textContent = "📅 날짜 선택";
+    defaultOption.textContent = "날짜 선택";
     defaultOption.disabled = true;
     defaultOption.selected = true;
     dateSelect.appendChild(defaultOption);
@@ -143,8 +125,6 @@ async function fetchRobotPath(date, carCode) {
     try {
         const res = await fetch(`/arims/robot/path?startTime=${startTime}&endTime=${endTime}&carCode=${carCode}`);
         const data = await res.json();
-
-        // console.log("📦 로봇 경로 데이터:", data);
 
         if (data && data.length > 0) {
             drawRobotMarkers(data);
@@ -221,10 +201,11 @@ function drawRobotMarkers(dataList) {
         marker.addListener("click", () => {
             const detailId = marker.detailId;
             const carCode = marker.carCode;
+            const timestamp = item.date;
 
             const modal = document.getElementById("analysisModal");
 
-            // ✅ 이전에 열려 있던 마커와 같으면 닫기만 하고 종료
+            // 이전에 열려 있던 마커와 같으면 닫기만 하고 종료
             if (currentOpenDetailId === detailId) {
                 if (modal) modal.style.display = "none";
                 currentOpenDetailId = null;
@@ -245,6 +226,27 @@ function drawRobotMarkers(dataList) {
                     console.error("❌ 센서 데이터 호출 실패:", err);
                     alert("센서 데이터를 불러오는 데 실패했습니다.");
                 });
+
+            // 날씨 데이터 호출 → robotModal 인스턴스를 통해 표시하도록 수정
+            fetch(`/arims/robot/weather-data?carCode=${carCode}&timestamp=${timestamp}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("데이터 없음");
+                    return response.text();
+                })
+                .then(text => {
+                    if (!text) throw new Error("응답 body 비어 있음");
+                    return JSON.parse(text);
+                })
+                .then(data => {
+                    console.log("✅ 날씨 데이터 있음:", data);
+                    window.robotModal.openWeatherModal(data); // ✅ 여기 추가
+                })
+                .catch(err => {
+                    console.error("🚨 날씨 데이터 호출 실패", err);
+                });
+
+
+
         });
 
 
@@ -270,7 +272,7 @@ function drawRobotMarkers(dataList) {
 }
 
 
-// ✅ 모달 호출
+// 모달 호출
 async function openChemicalModal(sensorId) {
     try {
         const response = await fetch(`/arims/robot/ppm?sensorId=${sensorId}`);
@@ -286,8 +288,6 @@ async function openChemicalModal(sensorId) {
             <thead><tr><th>농도(ppm_ref_go)</th></tr></thead>
             <tbody><tr><td>${ppm}</td></tr></tbody>
         `;
-        console.log("클릭한 detailId", detailId);
-
         window.robotModal.open("센서 농도 정보", []);
     } catch (err) {
         console.error("센서 정보 오류:", err);
@@ -336,6 +336,27 @@ function showSensorModal(sensorDataList) {
     const modal = document.getElementById("analysisModal");
     modal.style.display = "block";
 }
+function showWeatherModal(data) {
+    if (!data) {
+        alert("해당 시간의 날씨 데이터가 없습니다.");
+        return;
+    }
+
+    const html = `
+        <table>
+            <tr><th>시간</th><td>${data.reg_date}</td></tr>
+            <tr><th>온도</th><td>${data.wd_temp} ℃</td></tr>
+            <tr><th>습도</th><td>${data.wd_humi} %</td></tr>
+            <tr><th>풍향</th><td>${data.wd_wdd} °</td></tr>
+            <tr><th>풍속</th><td>${data.wd_wds} m/s</td></tr>
+        </table>
+    `;
+
+    const modal = document.getElementById("weatherModal");
+    modal.querySelector(".content").innerHTML = html;
+    modal.style.display = "block";
+}
+
 
 window.addEventListener("click", function (e) {
     const modal = document.getElementById("analysisModal");

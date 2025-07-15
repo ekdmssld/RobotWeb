@@ -95,6 +95,15 @@
     </div>
 </div>
 
+<div id="weatherModal" class="modal">
+    <div class="modal-content content">
+        <span class="close" onclick="document.getElementById('weatherModal').style.display='none';">
+            <h3>기상 정보</h3>
+            <div class="content"></div>
+        </span>
+    </div>
+</div>
+
 <div class="contents">
     <leftmenu th:replace="tseiweb/leftmenu"></leftmenu>
 
@@ -114,7 +123,6 @@
                 <select id="availableDates">
                     <option value="" disabled selected >날짜 선택</option>
                 </select>
-<!--                <select id="availableDates" style="max-height: 150px; overflow-y: auto;"></select>-->
                 <button id="searchRobot">로봇 경로 조회</button>
             </td>
         </tr>

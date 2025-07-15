@@ -1,8 +1,12 @@
+// ✅ RobotModal.js 수정본
 class RobotModal {
     constructor(modalId) {
         this.modal = document.getElementById(modalId);
         this.modalText = document.getElementById("modalText");
         this.integratedTable = document.getElementById("integratedTable");
+
+        this.weatherModal = document.getElementById("weatherModal");
+        this.weatherContent = this.weatherModal?.querySelector(".content");
 
         this.dragging = false;
         this.startX = 0;
@@ -45,6 +49,27 @@ class RobotModal {
 
         if (this.modalText) this.modalText.textContent = title;
         if (this.integratedTable) this.populateTable(sensorData);
+    }
+
+    openWeatherModal(data) {
+        if (!this.weatherModal || !this.weatherContent) return;
+
+        if (!data) {
+            alert("해당 시간의 날씨 데이터가 없습니다.");
+            return;
+        }
+
+        const html = `
+            <table>
+                <tr><th>시간</th><td>${data.regDate}</td></tr>
+                <tr><th>온도</th><td>${data.wdTemp} ℃</td></tr>
+                <tr><th>습도</th><td>${data.wdHumi} %</td></tr>
+                <tr><th>풍향</th><td>${data.wdWdd} °</td></tr>
+                <tr><th>풍속</th><td>${data.wdWds} m/s</td></tr>
+            </table>
+        `;
+        this.weatherContent.innerHTML = html;
+        this.weatherModal.style.display = "block";
     }
 
     close() {

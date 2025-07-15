@@ -68,14 +68,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class no1DataBaseConfig {
 
-	@Primary
 	@Bean(name="no1DataSource")
 	@ConfigurationProperties(prefix="spring.no1.datasource")
 	public DataSource no1DataSource() {
 		return DataSourceBuilder.create().build();
 	}
 
-	@Primary
 	@Bean(name="no1SqlSessionFactory")
 	public SqlSessionFactory no1SqlSessionFactory(@Qualifier("no1DataSource") DataSource no1DataSource, ApplicationContext applicationContext) throws Exception {
 		SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
@@ -85,7 +83,6 @@ public class no1DataBaseConfig {
 		return sqlSessionFactoryBean.getObject();
 	}
 
-	@Primary
 	@Bean(name="no1SqlSessionTemplate")
 	public SqlSessionTemplate no1SqlSessionTemplate(@Qualifier("no1SqlSessionFactory") SqlSessionFactory sqlSessionFactory) {
 		return new SqlSessionTemplate(sqlSessionFactory);
