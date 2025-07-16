@@ -16,8 +16,8 @@
   position: fixed;
   overflow:auto;
   z-index: 5;
-  left: 20%;
-  top: 17%;
+  left: 50%;
+  top: 10%;
   /* width: 650px; */
   width: 396px;
   /* height: 700px; */
@@ -25,7 +25,7 @@
   margin: 0px;
   font-size: 15px;
 
-  
+
 }
 #integratedTable th, #integratedTable td {
   padding: 4px 8px;

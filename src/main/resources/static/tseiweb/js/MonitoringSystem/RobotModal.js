@@ -52,27 +52,6 @@ class RobotModal {
         if (this.integratedTable) this.populateTable(sensorData);
     }
 
-    openWeatherModal(data) {
-        if (!this.weatherModal || !this.weatherContent) return;
-
-        if (!data) {
-            alert("해당 시간의 날씨 데이터가 없습니다.");
-            return;
-        }
-
-        const html = `
-      <table>
-        <tr><th>시간</th><td>${data.regDate}</td></tr>
-        <tr><th>온도</th><td>${data.wdTemp} ℃</td></tr>
-        <tr><th>습도</th><td>${data.wdHumi} %</td></tr>
-        <tr><th>풍향</th><td>${data.wdWdd} °</td></tr>
-        <tr><th>풍속</th><td>${data.wdWds} m/s</td></tr>
-      </table>
-    `;
-        this.weatherContent.innerHTML = html;
-        this.weatherModal.style.display = "block";
-    }
-
     close() {
         if (this.modal) this.modal.style.display = "none";
     }
@@ -110,12 +89,12 @@ function openRobotModal(chemicalData, odorResult) {
 
     // 🟦 두 모달 모두 열기
     analysisModal.style.display = "block";
-    analysisModal.style.left = "65%";
+    analysisModal.style.left = "72%";
     analysisModal.style.top = "5%";
 
     compareModal.style.display = "block";
     compareModal.style.left = "72%";
-    compareModal.style.top = "5%";
+    compareModal.style.top = "2%";
 
     // 드래그 기능 설정
     let isDragging = false;

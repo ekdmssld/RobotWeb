@@ -69,9 +69,18 @@ class Modal {
   // 모달 열기
   open_modal() {
 
-    this.modal.style.display = "block"; // 무조건 표시
-    this.modal.style.left = "72%";
-    this.modal.style.top = "2%";
+    // this.modal.style.display = "block"; // 무조건 표시
+    // this.modal.style.left = "72%";
+    // this.modal.style.top = "2%";
+
+    if (this.modalId == "compareModal" || this.modalId == "robotCompareModal") {
+      this.modal.style.left = "72%";
+      this.modal.style.top = "50%";
+    } else if (this.modalId == "analysisModal" || this.modalId == "robotAnalysisModal") {
+      this.modal.style.left = "72%";
+      this.modal.style.top = "2%";
+    }
+
 
     // 모달 on/off 버튼이 on일때만 보이도록하기
     // marker_hidden_slide가 존재하지 않으면 무조건 열리도록 변경
