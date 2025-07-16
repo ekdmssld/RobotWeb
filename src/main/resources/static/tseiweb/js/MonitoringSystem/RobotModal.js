@@ -7,6 +7,9 @@ class RobotModal {
         this.weatherModal = document.getElementById("weatherModal");
         this.weatherContent = this.weatherModal?.querySelector(".content");
 
+        this.compareModal = new CompareModal("robotCompareModal");  // 🔧추가
+        window.robotCompareModal = this.compareModal;
+
         this.dragging = false;
         this.startX = 0;
         this.startY = 0;
@@ -100,14 +103,19 @@ class RobotModal {
  * @param {Array} odorResult - [{pred_smell_kind}, {pred_smell_strength}]
  */
 function openRobotModal(chemicalData, odorResult) {
-    const modal = document.getElementById("robotAnalysisModal");
+    const analysisModal = document.getElementById("robotAnalysisModal");
+    const compareModal = document.getElementById("robotCompareModal");
     const header = document.getElementById("robotModalHeader");
     const table = document.getElementById("robotIntegratedTable");
 
-    // 모달 열기
-    modal.style.display = "block";
-    modal.style.left = "65%";
-    modal.style.top = "5%";
+    // 🟦 두 모달 모두 열기
+    analysisModal.style.display = "block";
+    analysisModal.style.left = "65%";
+    analysisModal.style.top = "5%";
+
+    compareModal.style.display = "block";
+    compareModal.style.left = "72%";
+    compareModal.style.top = "5%";
 
     // 드래그 기능 설정
     let isDragging = false;
@@ -117,16 +125,16 @@ function openRobotModal(chemicalData, odorResult) {
         isDragging = true;
         startX = e.clientX;
         startY = e.clientY;
-        startLeft = parseInt(modal.style.left || 0);
-        startTop = parseInt(modal.style.top || 0);
+        startLeft = parseInt(analysisModal.style.left || 0);
+        startTop = parseInt(analysisModal.style.top || 0);
     };
 
     document.onmousemove = function (e) {
         if (!isDragging) return;
         const dx = e.clientX - startX;
         const dy = e.clientY - startY;
-        modal.style.left = `${startLeft + dx}px`;
-        modal.style.top = `${startTop + dy}px`;
+        analysisModal.style.left = `${startLeft + dx}px`;
+        analysisModal.style.top = `${startTop + dy}px`;
     };
 
     document.onmouseup = function () {
@@ -136,7 +144,7 @@ function openRobotModal(chemicalData, odorResult) {
     // 테이블 출력
     table.innerHTML = `
     <thead>
-      <tr>
+      <tr style="background-color:#30497D;">
         <th>물질명</th><th>농도(ppb)</th><th>최소감지값</th>
         <th>희석배수</th><th>비율(%)</th>
       </tr>
@@ -158,5 +166,11 @@ function openRobotModal(chemicalData, odorResult) {
     // kindField.textContent = odorResult[0]?.pred_smell_kind || "-";
     // strengthField.textContent = odorResult[1]?.pred_smell_strength?.toFixed(1) || "-";
 }
-
+// CompareModal 복사 후 이름만 변경
+class RobotCompareModal extends CompareModal {
+    constructor(modalId) {
+        super(modalId);
+    }
+}
+window.robotCompareModal = new RobotCompareModal("robotCompareModal");
 window.RobotModal = RobotModal;

@@ -21,7 +21,7 @@
     font-weight: bold;
 }
 #analysisModal {
-    width: 400px;       /* ← 너비 줄이기 */
+    width: 540px;       /* ← 너비 줄이기 */
     height: auto;       /* ← 필요하면 고정 높이도 설정 가능 */
     max-height: 80%;    /* ← 화면 넘지 않게 제한 */
     overflow-y: auto;   /* ← 내용 많으면 스크롤 */
@@ -40,7 +40,7 @@
     z-index: 6;
     left: 20%;
     top: 17%;
-    width: 400px;
+    width: 540px;
     height: 450px;
     font-size: 14px;
     color: white;
@@ -64,5 +64,28 @@
     border-bottom: 1px solid #30497D;
 }
 .modal_1-content table th{
+    background-color: #30497D;
+}
+#robotCompareModal {
+    background-color: #0B173B;
+    display: none;
+    position: fixed;
+    overflow: auto;
+    z-index: 6;
+    left: 60%;
+    top: 17%;
+    width: 540px;
+    height: 460px;
+    font-size: 15px;
+    border: 1px solid #30497D;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    color: white;
+}
+#robotIntegratedTable th, #robotIntegratedTable td {
+    padding: 4px 8px;
+    font-size: 13px;
+    border-bottom: 1px solid #30497D;
+}
+.modal_2-content table th{
     background-color: #30497D;
 }

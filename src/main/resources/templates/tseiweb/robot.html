@@ -74,6 +74,7 @@
 <!-- 분석 모달 (화학물질 정보) -->
 <div id="analysisModal" class="modal">
     <div class="modal_1-content">
+        <span class="close" onclick="document.getElementById('AnalysisModal').style.display='none'">×</span>
         <div class="modal-header" style="cursor:move;">
             <span id="modalText"> 해당 위치의 화학 정보 </span>
         </div>
@@ -82,7 +83,33 @@
             <tbody></tbody>
         </table>
     </div>
+</div><!-- index.html 또는 robot.html 내부 -->
+
+<!-- 📌 사업장 비교 모달창 -->
+<div id="robotCompareModal" class="modal">
+    <div class="modal-header">
+        <span class="close" onclick="document.getElementById('robotCompareModal').style.display='none'">×</span>
+    </div>
+    <div class="modal_2-content">
+        <div style="font-size: 15px;">사업장 고농도 상위 10가지 물질 포함 여부</div>
+        <table id="compareTable">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+
+        <div style="font-size: 15px;">사업장 기여율 상위 10가지 물질 포함 여부</div>
+        <table id="compareTable2">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
 </div>
+
+
+
+
+
+
 
 <!-- robotAnalysisModal -->
 <div id="robotAnalysisModal" class="modal" style="display: none;">
@@ -128,10 +155,12 @@
 <div id="relatedKeywords" style="font-size: 15px; position: fixed; z-index: 9; left: 667px; top: 90px; background-color: white; border: 1px solid #ccc; max-height: 200px; width: 12vw; padding: 5px; overflow-y: auto; display: none;"></div>
 <!-- 6. 로딩순서 중요한 모듈 (type="module") -->
 <script src="/static/tseiweb/js/MonitoringSystem/Map.js"></script>
-<script src="/static/tseiweb/js/MonitoringSystem/RobotModal.js"></script>
+<script src="/static/tseiweb/js/MonitoringSystem/SourcePlace.js"></script>
+<script src="/static/tseiweb/js/MonitoringSystem/SourcePlaceList.js"></script>
 <script src="/static/tseiweb/js/MonitoringSystem/Robot.js"></script>
 <script src="/static/tseiweb/js/MonitoringSystem/Car.js"></script>
 <script src="/static/tseiweb/js/MonitoringSystem/CarList.js"></script>
 <script src="/static/tseiweb/js/MonitoringSystem/Modal.js"></script>
+<script src="/static/tseiweb/js/MonitoringSystem/RobotModal.js"></script>
 </body>
 </html>

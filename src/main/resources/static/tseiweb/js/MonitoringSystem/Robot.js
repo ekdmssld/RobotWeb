@@ -12,6 +12,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await window.robotMapInit();
 
+    //사업장 리스트 생성 및 지도에 표시
+    window.sourcePlaceList = new SourcePlaceList(window.robotMap, null);
+    await fetchAndAddPlaces();  // 아래에 정의된 함수 호출
+    window.customMap = {};  // 임시 customMap 객체 생성
+    window.customMap.placeList = window.sourcePlaceList;
+
     // 로봇 선택 이벤트
     document.getElementById("carCodeSelect").addEventListener("change", handleCarCodeChange);
 
@@ -265,41 +271,31 @@ function drawRobotMarkers(dataList) {
             const carCode = marker.carCode;
             const timestamp = item.date;
 
-            //화학물질 모달 테스트용
-            (async () => {
-                const chemicalData = await fetchChemicalData(detailId);
-                const raw = await fetchChemicalData(marker.detailId);
-                const integrated = integrateChemicalData(raw);
-                const odorResult = await odorPrediction(integrated);
-                fillOdorPrediction(odorResult);
-                openRobotModal(integrated, odorResult); //
-            })();
-
+            // ✅ 현재 클릭된 detailId 기억
             const modal = document.getElementById("analysisModal");
-
-            // 이전에 열려 있던 마커와 같으면 닫기만 하고 종료
             if (currentOpenDetailId === detailId) {
                 if (modal) modal.style.display = "none";
                 currentOpenDetailId = null;
                 return;
             }
+            currentOpenDetailId = detailId;
 
-            currentOpenDetailId = detailId; // 현재 클릭된 마커 저장
-
+            // ✅ 좌표 정보, 풍향 채우기
             fillCoordinateTable(item.latitude, item.longitude, item.date);
             fillOdorDirection(item.windDirection ?? "-");
 
+            // ✅ 센서 데이터 불러오기
             fetch(`/arims/robot/sensor-data?detailId=${detailId}&carCode=${carCode}`)
                 .then(res => res.json())
                 .then(data => {
-                    showSensorModal(data); // 여기가 모달을 열고 있음
+                    showSensorModal(data);
                 })
                 .catch(err => {
                     console.error("❌ 센서 데이터 호출 실패:", err);
                     alert("센서 데이터를 불러오는 데 실패했습니다.");
                 });
 
-            // 날씨 데이터 호출 → robotModal 인스턴스를 통해 표시하도록 수정
+            // ✅ 날씨 정보 불러오기
             fetch(`/arims/robot/weather-data?carCode=${carCode}&timestamp=${timestamp}`)
                 .then(response => {
                     if (!response.ok) throw new Error("데이터 없음");
@@ -310,20 +306,62 @@ function drawRobotMarkers(dataList) {
                     return JSON.parse(text);
                 })
                 .then(data => {
-                    // console.log("✅ 날씨 데이터 있음:", data);
                     fillWeatherInfo(data);
                 })
                 .catch(err => {
                     console.error("🚨 날씨 데이터 호출 실패", err);
                 });
 
+            // ✅ 화학물질 예측 및 사업장 비교 로직 실행
+            (async () => {
+                try {
+                    const raw = await fetchChemicalData(detailId);
+                    const integrated = integrateChemicalData(raw);
+                    const odorResult = await odorPrediction(integrated);
+
+                    // console.log("🧪 raw chemicalData:", raw);
+                    // console.log("📊 integrated (with dilutionRate, ratio):", integrated);
+                    // console.log("🌫️ odorPrediction:", odorResult);
+
+                    fillOdorPrediction(odorResult);
+                    openRobotModal(integrated, odorResult);
+
+                    const places = (window.customMap?.placeList?.places || [])
+                        .filter(place => {
+                            const distance = getDistance(item.latitude, item.longitude, place.lat, place.lon);
+                            return distance <= 2; // 2km 이내 사업장만 비교
+                        });
+
+                    const commonData = await Promise.all(places.map(async place => {
+                        const placeChemicals = await place.getPlaceChemicalData();
+                        const matching = raw.filter(r =>
+                            placeChemicals.some(p => p.chemicalName === r.chemicalName)
+                        );
+                        return {
+                            title: place.getTitle(),
+                            commonObject: matching
+                        };
+                    }));
 
 
+                    console.log("🏭 사업장별 매칭 결과:", commonData);
+
+                    const valueRank = sortValueRank(commonData);
+                    const ratioRank = sortRatioRank(commonData);
+
+                    console.log("📈 valueRank (농도 기준):", valueRank);
+                    console.log("📉 ratioRank (비율 기준):", ratioRank);
+
+                    // 모달 띄우기
+                    // 항상 모달 띄우기 (비어 있어도)
+                    window.robotCompareModal.open_modal();
+                    window.robotCompareModal.modal_init(trimTen(integrated), valueRank);
+                    window.robotCompareModal.modal_init2(trimTen(integrated), ratioRank);
+                } catch (err) {
+                    console.error("🔥 화학물질 비교/모달 처리 중 오류 발생:", err);
+                }
+            })();
         });
-
-
-
-
         window.robotMarkers.push(marker);
         path.push(position);
     });
@@ -437,4 +475,74 @@ window.addEventListener("click", function (e) {
     }
 });
 
+function sortValueRank(commondata) {
+    commondata.forEach(item => {
+        item.commonObject.sort((a, b) => b.chemicalValue - a.chemicalValue);
+        item.valueSum = item.commonObject.reduce((sum, obj) => sum + obj.chemicalValue, 0);
+    });
+    commondata.sort((a, b) => b.valueSum - a.valueSum);
+    commondata.forEach((item, index) => item.rank = index + 1);
+    return commondata;
+}
 
+function sortRatioRank(commondata) {
+    commondata.forEach(item => {
+        item.commonObject.sort((a, b) => b.relativeRatio - a.relativeRatio);
+        item.relativeRatioSum = item.commonObject.reduce((sum, obj) => sum + obj.relativeRatio, 0);
+    });
+    commondata.sort((a, b) => b.relativeRatioSum - a.relativeRatioSum);
+    commondata.forEach((item, index) => item.rank = index + 1);
+    return commondata;
+}
+
+function trimTen(array) {
+    return array.length > 10 ? array.slice(0, 10) : array;
+}
+async function fetchAndAddPlaces() {
+    try {
+        const res = await fetch("/arims/place");
+        const data = await res.json();
+        const places = data.list;
+
+        for (const place of places) {
+            await window.sourcePlaceList.addPlace(
+                place.companyIndex,
+                place.name,
+                {
+                    lat: place.latitude,
+                    lng: place.longitude
+                },
+                place.csvFilename,
+                place.odor
+            );
+        }
+
+        window.sourcePlaceList.makeCluster();
+        // console.log("✅ 사업장 데이터 로딩 완료:", window.sourcePlaceList.places);
+    } catch (err) {
+        console.error("❌ 사업장 데이터 불러오기 실패:", err);
+    }
+}
+/**
+ * 두 지점 간의 거리 계산 (단위: km)
+ * Haversine Formula
+ */
+function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // 지구 반지름 (km 단위)
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) *
+        Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+function deg2rad(deg) {
+    return deg * (Math.PI / 180);
+}

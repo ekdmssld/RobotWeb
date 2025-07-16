@@ -69,27 +69,18 @@ class Modal {
   // 모달 열기
   open_modal() {
 
-    // 초기 위치 변경
-    // if (this.modalId == "compareModal") {
-    //   this.modal.style.left = "60%";
-    //   this.modal.style.top = "17%";
-    // }else {
-    //   this.modal.style.left = "20%";
-    //   this.modal.style.top = "17%";
-    // }
-    if (this.modalId == "compareModal") {
-      this.modal.style.left = "72%";
-      this.modal.style.top = "50%";
-    }else {
-      this.modal.style.left = "72%";
-      this.modal.style.top = "2%";
-    }
+    this.modal.style.display = "block"; // 무조건 표시
+    this.modal.style.left = "72%";
+    this.modal.style.top = "2%";
 
     // 모달 on/off 버튼이 on일때만 보이도록하기
+    // marker_hidden_slide가 존재하지 않으면 무조건 열리도록 변경
     const checkbox = document.getElementById("marker_hidden_slide");
-    if (checkbox.checked) {
+    if (!checkbox || checkbox.checked === true || checkbox.checked === undefined) {
       this.modal.style.display = "block";
     }
+
+
   }
 }
 
@@ -191,174 +182,151 @@ class AnalysisModal extends Modal {
 class CompareModal extends Modal {
   constructor(modalId) {
     super(modalId);
+
+    // // 방지시설예측 버튼 클릭이벤트 등록
+    // document.querySelector("#prevention-button > button").addEventListener("click", this.preventionButtonEvent);
   }
 
-  // 고농도 테이블 태그 생성 및 데이터 세팅
   modal_init(base, commonRank) {
     const compareTable = document.getElementById("compareTable");
-    this.carValueSortedData = base; // 농도 기준 정렬된 차량 데이터
-    this.placeValueCommonData = commonRank; // 장소 데이터 중 차량 데이터와 일치하는 데이터
+    this.carValueSortedData = base;
+    this.placeValueCommonData = commonRank;
     this.makeCompareTablePlace("value", compareTable);
   }
 
-  // 비율 테이블 태그 생성 및 데이터 세팅
   modal_init2(base, commonRank) {
     const compareTable = document.getElementById("compareTable2");
-    this.carRatioSortedData = base; // 비율 기준 정렬된 차량 데이터
-    this.placeRatioCommonData = commonRank; // 장소 데이터 중 차량 데이터와 일치하는 데이터
+    this.carRatioSortedData = base;
+    this.placeRatioCommonData = commonRank;
     this.makeCompareTablePlace("ratio", compareTable);
   }
 
-
-  // 비교 모달의 농도 혹은 비율 테이블의 헤더와 이벤트를 설정하고 바디를 만듬
   makeCompareTablePlace(mode, table) {
     const thead = table.getElementsByTagName("thead")[0];
     const tbody = table.getElementsByTagName("tbody")[0];
 
-    // 농도 테이블 헤더 만들기
-    if (mode == "value") {
+    if (mode === "value") {
       thead.innerHTML = `
             <tr>
-                <th width="120px"></th>
-                <th width="101px">사업장 명</th>
-                <th width="130px"style="padding:0px"><select style="width: 115px;" id="1th-company-${mode}"></select></th>
-                <th width="130px"style="padding:0px"><select style="width: 115px;" id="2th-company-${mode}"></select></th>
-                <th width="130px"style="padding:0px"><select style="width: 115px;" id="3th-company-${mode}"></select></th>
+                <th></th><th>사업장 명</th>
+                <th><select id="1th-company-${mode}"></select></th>
+                <th><select id="2th-company-${mode}"></select></th>
+                <th><select id="3th-company-${mode}"></select></th>
             </tr>
             <tr>
-                <th width="120px">물질명</th>
-                <th width="101px">농도</th>
-                <th width="125px"></th>
-                <th width="125px">일치여부</th>
-                <th width="125px"></th>
+                <th>물질명</th><th>농도</th>
+                <th></th><th>일치여부</th><th></th>
             </tr>
+        `;
 
-            `;
-      for(var i=1; i<= this.placeValueCommonData.length && i <= 3 ; i++){
-        // 각 select에 데이터 넣기
-        this.makeTitleSelection(i);
+      if (this.placeValueCommonData.length > 0) {
+        for (let i = 1; i <= this.placeValueCommonData.length && i <= 3; i++) {
+          this.makeTitleSelection(i);
+        }
+        this.attachEventHandlers();
       }
-      // select에 이벤트 등록하기
-      this.attachEventHandlers();
     }
-    // 비율 테이블 헤더 만들기 
-    else {
+    else if(mode === "ratio"){
       thead.innerHTML = `
-            <tr>
-                <th width="120px">물질명</th>
-                <th width="101px">비율</th>
-                <th width="130px"></th>
-                <th width="130px">일치여부</th>
-                <th width="130px"></th>
-            </tr>
-
-            `;
+      <tr>
+      <th>물질명</th><th>비율</th><th></th><th>일치여부</th><th></th>
+</tr>
+`
     }
-
-    //바디 만들기
+    // 바디는 항상 출력
     tbody.innerHTML = this.generateCommonChemicalRows(mode, 10);
   }
 
-  // 이벤트 핸들러 일괄적으로 등록하기
+
+  makeSelectOptions(index) {
+    if (!this.placeValueCommonData || this.placeValueCommonData.length === 0) {
+      return `<option value="-1">-</option>`;
+    }
+
+    return this.placeValueCommonData
+        .map((data, idx) => {
+          const selected = idx === index ? "selected" : "";
+          return `<option value="${idx}" ${selected}>${data.title}</option>`;
+        })
+        .join("");
+  }
+
   attachEventHandlers() {
-    $(`#1th-company-value`)
-      .off("change")
-      .on("change", () => this.updateTable());
-    $(`#2th-company-value`)
-      .off("change")
-      .on("change", () => this.updateTable());
-    $(`#3th-company-value`)
-      .off("change")
-      .on("change", () => this.updateTable());
+    $(`#1th-company-value`).off("change").on("change", () => this.updateTable());
+    $(`#2th-company-value`).off("change").on("change", () => this.updateTable());
+    $(`#3th-company-value`).off("change").on("change", () => this.updateTable());
   }
 
-  // select 기업 변경시 이벤트
   updateTable() {
-    var table = document.getElementById("compareTable");
-    var tbody = table.getElementsByTagName("tbody")[0];
-    tbody.innerHTML = this.generateCommonChemicalRows("value", 10);
+    const table1 = document.getElementById("compareTable");
+    const tbody1 = table1.getElementsByTagName("tbody")[0];
+    tbody1.innerHTML = this.generateCommonChemicalRows("value", 10);
 
-    var table = document.getElementById("compareTable2");
-    var tbody = table.getElementsByTagName("tbody")[0];
-    tbody.innerHTML = this.generateCommonChemicalRows("ratio", 10);
+    const table2 = document.getElementById("compareTable2");
+    const tbody2 = table2.getElementsByTagName("tbody")[0];
+    tbody2.innerHTML = this.generateCommonChemicalRows("ratio", 10);
   }
 
-  // select에 부채꼴내 기업 데이터 넣기
-  makeTitleSelection(index) {
-    const select = document.getElementById(index + "th-company-value");
-
-    let commonRank = this.placeValueCommonData;
-
-    select.innerHTML = "";
-
-    commonRank.forEach((data, forindex) => {
-      const option = document.createElement("option");
-      option.text = data.title;
-      option.value = forindex;
-      if (forindex === index - 1) {
-        option.selected = true;
-      }
-      select.appendChild(option);
-    });
-  }
-
-  // 농도/비율 테이블 바디 생성
   generateCommonChemicalRows(mode, limit) {
     let html = "";
 
-    let data, commonRank;
-    if (mode === "ratio") {
-      data = this.carRatioSortedData;
-      commonRank = this.placeRatioCommonData;
-    } else {
-      data = this.carValueSortedData;
-      commonRank = this.placeValueCommonData;
+    let data = mode === "ratio" ? this.carRatioSortedData : this.carValueSortedData;
+    let commonRank = mode === "ratio" ? this.placeRatioCommonData : this.placeValueCommonData;
+
+    if (!data) data = [];
+    if (!commonRank) commonRank = [];
+
+    // 💡 기본적으로 index1~3는 -1로 설정 (회사 데이터 없을 때 대비)
+    let index1 = -1, index2 = -1, index3 = -1;
+
+    if (commonRank.length > 0) {
+      const getIndexValue = (id) => {
+        const el = document.getElementById(id);
+        return el ? parseInt(el.value) : -1;
+      };
+      index1 = getIndexValue("1th-company-value");
+      index2 = getIndexValue("2th-company-value");
+      index3 = getIndexValue("3th-company-value");
     }
 
-    console.log("모달 계산 실행");
-    console.log("data", data);
+    const getMatchingMark = (index, chemicalName) => {
+      if (
+          index === -1 ||
+          !commonRank[index] ||
+          !commonRank[index].commonObject ||
+          !Array.isArray(commonRank[index].commonObject)
+      ) return "X";
 
-    const index1 = document.getElementById("1th-company-value").value;
-    const index2 = document.getElementById("2th-company-value").value;
-    const index3 = document.getElementById("3th-company-value").value;
+      return commonRank[index].commonObject.some(
+          (common) => common?.chemicalName?.trim().toLowerCase() === chemicalName?.trim().toLowerCase()
+      ) ? "O" : "X";
+    };
 
     for (let i = 0; i < limit; i++) {
       const chemicalName = data[i]?.chemicalName || "-";
-      let metchingdata;
+      let value = mode === "value"
+          ? (data[i]?.chemicalValue?.toFixed(1) || "-")
+          : (data[i]?.relativeRatio?.toFixed(1) || "-");
 
-      if (mode == "value") {
-        metchingdata = data[i]?.chemicalValue.toFixed(1) || "-";
-      } else {
-        metchingdata = data[i]?.relativeRatio.toFixed(1) || "-";
-      }
-      let metchingTrue1 = "X";
-      let metchingTrue2 = "X";
-      let metchingTrue3 = "X";
+      // 기업 데이터가 없으면 무조건 X 표시
+      const match1 = getMatchingMark(index1, chemicalName);
+      const match2 = getMatchingMark(index2, chemicalName);
+      const match3 = getMatchingMark(index3, chemicalName);
 
-      if (chemicalName !== "-") {
-        for (const common of commonRank[index1]?.commonObject || []) {
-          if (common?.chemicalName === data[i]?.chemicalName) {
-            metchingTrue1 = "O";
-            break;
-          }
-        }
-        for (const common of commonRank[index2]?.commonObject || []) {
-          if (common?.chemicalName === data[i]?.chemicalName) {
-            metchingTrue2 = "O";
-            break;
-          }
-        }
-        for (const common of commonRank[index3]?.commonObject || []) {
-          if (common?.chemicalName === data[i]?.chemicalName) {
-            metchingTrue3 = "O";
-            break;
-          }
-        }
-      }
+      html += `
+    <tr>
+      <td>${chemicalName}</td>
+      <td>${value}</td>
+      <td>${match1}</td>
+      <td>${match2}</td>
+      <td>${match3}</td>
+    </tr>`;
+    };
 
-      html += `<tr><td width='80px'>${chemicalName}</td> <td width='81px'>${metchingdata}</td> <td  width='150px'>${metchingTrue1}</td><td  width='150px'>${metchingTrue2}</td><td width='150px'>${metchingTrue3}</td></tr>`;
-    }
 
     return html;
   }
+
+
+
 }
