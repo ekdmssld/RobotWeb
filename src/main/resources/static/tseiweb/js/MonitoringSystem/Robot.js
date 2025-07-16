@@ -415,7 +415,8 @@ function showSensorModal(sensorDataList) {
     tableHead.innerHTML = "";
 
     // 헤더 설정 (센서명, PPM, REF, RS, RO 등)
-    const headers = ["센서명", "PPM", "REF", "RS", "RO"];
+    const headers = ["센서명", "PPM"];
+    // const headers = ["센서명", "PPM", "REF", "RS", "RO"];
     const headRow = document.createElement("tr");
     headers.forEach(title => {
         const th = document.createElement("th");
@@ -430,9 +431,9 @@ function showSensorModal(sensorDataList) {
         const values = [
             sensor.gasName,  // 센서 이름
             sensor.ppm,      // ppm
-            sensor.ref,      // ppm_ref_go 혹은 비슷한 값
-            sensor.rs,
-            sensor.ro
+            // sensor.ref,      // ppm_ref_go 혹은 비슷한 값
+            // sensor.rs,
+            // sensor.ro
         ];
         values.forEach(val => {
             const td = document.createElement("td");

@@ -21,7 +21,7 @@
     font-weight: bold;
 }
 #analysisModal {
-    width: 540px;       /* ← 너비 줄이기 */
+    width: 250px;       /* ← 너비 줄이기 */
     height: auto;       /* ← 필요하면 고정 높이도 설정 가능 */
     max-height: 80%;    /* ← 화면 넘지 않게 제한 */
     overflow-y: auto;   /* ← 내용 많으면 스크롤 */
@@ -40,7 +40,7 @@
     z-index: 6;
     left: 20%;
     top: 17%;
-    width: 540px;
+    width: 396px;
     height: 450px;
     font-size: 14px;
     color: white;
@@ -74,7 +74,7 @@
     z-index: 6;
     left: 60%;
     top: 17%;
-    width: 540px;
+    width: 396px;
     height: 460px;
     font-size: 15px;
     border: 1px solid #30497D;
