@@ -121,6 +121,10 @@ class CarList {
     this.path.push(path);
     this.carLocations = [];
   }
+  findCarById(id) {
+    return this.cars.find(car => car.carIndex === id);
+  }
+
 
   // 모든 marker 리스트 반환하
   getMarkersList() {

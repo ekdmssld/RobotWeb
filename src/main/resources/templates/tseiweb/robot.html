@@ -189,5 +189,19 @@
 <script src="/static/tseiweb/js/MonitoringSystem/CarList.js"></script>
 <script src="/static/tseiweb/js/MonitoringSystem/Modal.js"></script>
 <script src="/static/tseiweb/js/MonitoringSystem/RobotModal.js"></script>
+<script src="/static/tseiweb/js/MonitoringSystem/WebRobot.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        const webRobot = new WebRobot(
+            window.robotMap,
+            window.customMap,
+            window.sourcePlaceList,
+            window.carList
+        );
+        await webRobot.init();
+        window.webRobot = webRobot; // 전역에 등록
+    });
+</script>
+
 </body>
 </html>
