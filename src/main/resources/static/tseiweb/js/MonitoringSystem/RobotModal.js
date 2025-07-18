@@ -82,19 +82,19 @@ class RobotModal {
  * @param {Array} odorResult - [{pred_smell_kind}, {pred_smell_strength}]
  */
 function openRobotModal(chemicalData, odorResult) {
-    const analysisModal = document.getElementById("robotAnalysisModal");
+    const analysisModal = document.getElementById("analysisModal");
     const compareModal = document.getElementById("robotCompareModal");
-    const header = document.getElementById("robotModalHeader");
-    const table = document.getElementById("robotIntegratedTable");
+    const header = document.querySelector(".modal_1-content");
+    const table = document.getElementById("integratedTable");
 
     // 🟦 두 모달 모두 열기
     analysisModal.style.display = "block";
     analysisModal.style.left = "72%";
-    analysisModal.style.top = "5%";
+    analysisModal.style.top = "2%";
 
     compareModal.style.display = "block";
     compareModal.style.left = "72%";
-    compareModal.style.top = "2%";
+    compareModal.style.top = "50%";
 
     // 드래그 기능 설정
     let isDragging = false;
@@ -107,6 +107,7 @@ function openRobotModal(chemicalData, odorResult) {
         startLeft = parseInt(analysisModal.style.left || 0);
         startTop = parseInt(analysisModal.style.top || 0);
     };
+
 
     document.onmousemove = function (e) {
         if (!isDragging) return;

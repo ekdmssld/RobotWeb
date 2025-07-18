@@ -73,13 +73,20 @@ class Modal {
     // this.modal.style.left = "72%";
     // this.modal.style.top = "2%";
 
-    if (this.modalId == "compareModal" || this.modalId == "robotCompareModal") {
+    if (this.modalId == "compareModal") {
       this.modal.style.left = "72%";
       this.modal.style.top = "50%";
-    } else if (this.modalId == "analysisModal" || this.modalId == "robotAnalysisModal") {
+    } else if (this.modalId == "analysisModal") {
       this.modal.style.left = "72%";
       this.modal.style.top = "2%";
     }
+      // if (this.modalId == "compareModal" || this.modalId == "robotCompareModal") {
+    //   this.modal.style.left = "72%";
+    //   this.modal.style.top = "50%";
+    // } else if (this.modalId == "analysisModal" || this.modalId == "robotAnalysisModal") {
+    //   this.modal.style.left = "72%";
+    //   this.modal.style.top = "2%";
+    // }
 
 
     // 모달 on/off 버튼이 on일때만 보이도록하기

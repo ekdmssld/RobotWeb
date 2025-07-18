@@ -2,7 +2,7 @@ const fixedDates = {
     R1: "2024-08-13",
     R2: "2025-04-17"
 };
-window.analysisModal = new AnalysisModal("robotAnalysisModal");
+// window.analysisModal = new AnalysisModal("robotAnalysisModal");
 window.compareModal = new CompareModal("robotCompareModal");
 window.customMap = new CustomMap(window.analysisModal, window.compareModal);
 
@@ -455,7 +455,9 @@ async function openChemicalModal(sensorId) {
             <thead><tr><th>농도(ppm_ref_go)</th></tr></thead>
             <tbody><tr><td>${ppm}</td></tr></tbody>
         `;
-        window.robotModal.open("센서 농도 정보", []);
+        window.analysisModal.open_modal();       // ✅ 대체
+        window.analysisModal.switchModalTitle("OOO");
+        window.analysisModal.modal_init(chemicalData, odorResult);
     } catch (err) {
         console.error("센서 정보 오류:", err);
         alert("센서 정보를 불러올 수 없습니다.");
