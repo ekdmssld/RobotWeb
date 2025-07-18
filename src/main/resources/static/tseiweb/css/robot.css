@@ -21,10 +21,19 @@
     font-weight: bold;
 }
 #analysisModal {
-    width: 250px;       /* ← 너비 줄이기 */
-    height: auto;       /* ← 필요하면 고정 높이도 설정 가능 */
-    max-height: 80%;    /* ← 화면 넘지 않게 제한 */
-    overflow-y: auto;   /* ← 내용 많으면 스크롤 */
+    background-color: #0B173B;
+    display: none;
+    position: fixed;
+    overflow: auto;
+    z-index: 6;
+    left: 72%;
+    top: 17%;
+    width: 396px;
+    height: 450px;
+    font-size: 14px;
+    color: white;
+    border: 1px solid #30497D;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
 }
 .integratedTable th, .integratedTable td {
     padding: 4px 8px;
