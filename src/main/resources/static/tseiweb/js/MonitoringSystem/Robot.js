@@ -320,6 +320,24 @@ function drawRobotMarkers(dataList) {
             const carCode = item.carCode;
             const timestamp = item.date;
 
+            await google.maps.importLibrary("maps");
+
+            if(window.robotCircle){
+                window.robotCircle.setMap(null);
+            }
+
+            window.robotCircle = new google.maps.Circle({
+                strokeColor: "#0099ff",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#80caff",
+                fillOpacity: 0.35,
+                map: window.robotMap,
+                center: { lat: item.latitude, lng: item.longitude },
+                radius: 1000 // 반경 2km
+            });
+            await drawCircularSector(item.latitude, item.longitude, item.windDirection);
+
             // 같은 마커 클릭 시 모달 토글
             const modal = document.getElementById("analysisModal");
             if (currentOpenDetailId === detailId) {
@@ -581,4 +599,42 @@ function getDistance(lat1, lon1, lat2, lon2) {
 
 function deg2rad(deg) {
     return deg * (Math.PI / 180);
+}
+async function drawCircularSector(lat, lng, windDirDeg) {
+    await google.maps.importLibrary("geometry");
+
+    const center = new google.maps.LatLng(lat, lng);
+    const radius = 1000; // 2km
+    const sectorAngle = 60; // 부채꼴 각도 (예: ±30도)
+
+    const startAngle = windDirDeg - sectorAngle / 2;
+    const endAngle = windDirDeg + sectorAngle / 2;
+
+    const { spherical } = google.maps.geometry;
+
+    const points = [center];
+
+    const segments = 60;
+    for (let i = 0; i <= segments; i++) {
+        const angle = startAngle + ((endAngle - startAngle) * i) / segments;
+        const vertex = spherical.computeOffset(center, radius, angle);
+        points.push(vertex);
+    }
+    points.push(center); // 닫기
+
+    // 이전 부채꼴 제거
+    if (window.robotSector) {
+        window.robotSector.setMap(null);
+    }
+
+    // 부채꼴 추가
+    window.robotSector = new google.maps.Polygon({
+        paths: points,
+        strokeColor: "#0099ff",
+        strokeOpacity: 0.6,
+        strokeWeight: 1,
+        fillColor: "#3399ff",
+        fillOpacity: 0.3,
+        map: window.robotMap
+    });
 }
