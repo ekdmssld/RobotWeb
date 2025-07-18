@@ -296,7 +296,7 @@ class Car {
       var commonValueRank = this.sortValueRank(commonData);
 
       // 악취유형 일치 + 부채꼴 내 사업장이 없다면 모달창 초기화만 진행
-      if (matchingResult.length == 0) {
+      if (matchingResult.length === 0) {
         createToast(
           "warning",
           "부채꼴 내 냄새 분류가 일치하는 사업장이 없습니다."

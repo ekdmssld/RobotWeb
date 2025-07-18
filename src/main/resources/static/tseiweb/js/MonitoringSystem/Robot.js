@@ -359,7 +359,7 @@ function drawRobotMarkers(dataList) {
                 // 2. 센서 데이터 불러오기
                 const sensorResponse = await fetch(`/arims/robot/sensor-data?detailId=${detailId}&carCode=${carCode}`);
                 const sensorData = await sensorResponse.json();
-                showSensorModal(sensorData);
+                // showSensorModal(sensorData);
 
                 // 3. 날씨 정보 불러오기
                 try {
