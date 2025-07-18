@@ -75,6 +75,15 @@
 <div id="analysisModal" class="modal">
     <div class="modal_1-content">
         <span class="close" onclick="document.getElementById('analysisModal').style.display='none'">×</span>
+        <div>
+            <table id="odorPredictTable">
+                <thead>
+                </thead>
+            </table>
+            <div id="prevention-button" class="">
+                <button data-company_id="">방지시설예측</button>
+            </div>
+        </div>
         <div class="modal-header" style="cursor:move;">
             <span id="modalText"> 해당 위치의 화학 정보 </span>
         </div>
@@ -142,6 +151,13 @@
                     <option value="R1">로봇 R1</option>
                     <option value="R2">로봇 R2</option>
                 </select>
+                <p style="font-size: 15px; font-weight: bold; color: grey; padding-top: 7px; padding-left: 5px; padding-right: 5px;">분석결과</p>
+                <label class="switch">
+                    <input type="checkbox" id="marker_hidden_slide" checked>
+                    <span class="slider round"></span>
+                    <p> 마커 Hidden </p>
+                </label>
+                <button cl
                 <button class="searchGPS" id="searchRobot"><i class="bi bi-search" style="font-size: 18px;"></i></button>
 <!--                <button id="searchRobot">로봇 경로 조회</button>-->
             </td>
@@ -192,12 +208,7 @@
 <script src="/static/tseiweb/js/MonitoringSystem/WebRobot.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
-        const webRobot = new WebRobot(
-            window.robotMap,
-            window.customMap,
-            window.sourcePlaceList,
-            window.carList
-        );
+        const webRobot = new WebRobot();
         await webRobot.init();
         window.webRobot = webRobot; // 전역에 등록
     });

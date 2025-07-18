@@ -1,7 +1,10 @@
 class WebRobot {
     constructor() {
+    }
+
+    async init() {
         this.analysisModal = new AnalysisModal("analysisModal");
-        this.compareModal = new CompareModal("compareModal");
+        this.compareModal = new CompareModal("robotCompareModal");
         this.customMap = new CustomMap(this.analysisModal, this.compareModal);
         this.sourcePlaceList = new SourcePlaceList(this.customMap.map, this.customMap);
         this.carList = new CarList(this.customMap.map, this.customMap);
@@ -10,13 +13,11 @@ class WebRobot {
         this.customMap.setCarList(this.carList);
 
         this.addEventListeners();
-    }
 
-    async init() {
-        await this.customMap.init(35.1796, 129.0756); // 기본 좌표
-        await this.loadAllPlaces(); // 페이지 진입 시 모든 장소 불러오기
+        await this.customMap.init(35.1796, 129.0756);
+        await this.loadAllPlaces();
+        this.carList.makeSelectionCar();
     }
-
     // 📍 장소 검색
     async searchPlace() {
         const keyword = document.getElementById("selectPlaceMarker").value;
@@ -60,6 +61,17 @@ class WebRobot {
             }
 
             window.drawRobotMarkers(pathData); // 기존 robot.js 내장 함수 사용
+            pathData.forEach(item => {
+                this.carList.addCar(
+                    item.carCode,
+                    { lat: item.latitude, lng: item.longitude },
+                    item.date,
+                    item.detailId,
+                    null,
+                    item.windDirection ?? null
+                );
+            });
+            this.carList.makeSelectionCar();
             this.customMap.map.setCenter(new google.maps.LatLng(pathData[0].latitude, pathData[0].longitude));
             this.customMap.map.setZoom(17);
         } catch (err) {
@@ -142,6 +154,7 @@ window.webRobot = new WebRobot();
 document.addEventListener("DOMContentLoaded", async () => {
     await waitForGoogleMaps();
     await window.webRobot.init();
+    webRobot.carList.makeSelectionCar();
 });
 
 // 외부 라이브러리 로딩 대기
