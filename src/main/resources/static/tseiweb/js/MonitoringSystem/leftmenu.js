@@ -108,7 +108,7 @@ for (var i = 0; i < Math.max(objects.length, 3); i++) {
 
 // 테이블에 thead를 추가합니다.
 table.appendChild(thead);
-window.web.addClickInRadiusEvent()
+  (window.web || window.webRobot).addClickInRadiusEvent();
 }
 
 
@@ -147,7 +147,7 @@ for (var i = 0; i < Math.max(objects.length, 3); i++) {
 
 // 테이블에 thead를 추가합니다.
 table.appendChild(thead);
-window.web.addClickMatchingEvent()
+  (window.web || window.webRobot).addClickMatchingEvent()
 }
 
 

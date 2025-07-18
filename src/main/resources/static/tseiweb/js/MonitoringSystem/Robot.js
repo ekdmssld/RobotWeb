@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     //사업장 리스트 생성 및 지도에 표시
     window.sourcePlaceList = new SourcePlaceList(window.robotMap, null);
 
-    window.customMap = {};  // 임시 customMap 객체 생성
+    // window.customMap = {};  // 임시 customMap 객체 생성
     await fetchAndAddPlaces();  // 아래에 정의된 함수 호출
     window.customMap.placeList = window.sourcePlaceList;
 
@@ -275,7 +275,7 @@ function drawRobotMarkers(dataList) {
             return;
         }
         const robotCar = new Car(
-            robotMap,             // 지도
+            window.robotMap,             // 지도
             window.customMap,     // customMap
             index + 1,            // titleIndex
             item.carCode,         // carIndex
@@ -284,7 +284,9 @@ function drawRobotMarkers(dataList) {
             item.date,
             item.detailId,
             null,                 // csv
-            item.windDirection    // 풍향
+            item.windDirection,   // 풍향
+            item.radius = 500,
+            item.angle = 30
         );
 
         // robotCar의 마커 스타일 커스터마이징
@@ -319,6 +321,7 @@ function drawRobotMarkers(dataList) {
             const detailId = item.detailId;
             const carCode = item.carCode;
             const timestamp = item.date;
+            runtimeCar = robotCar;
 
             await google.maps.importLibrary("maps");
 
@@ -337,6 +340,7 @@ function drawRobotMarkers(dataList) {
                 radius: 1000 // 반경 2km
             });
             await drawCircularSector(item.latitude, item.longitude, item.windDirection);
+            setRadioButtons(runtimeCar)
 
             // 같은 마커 클릭 시 모달 토글
             const modal = document.getElementById("analysisModal");
@@ -599,6 +603,165 @@ function getDistance(lat1, lon1, lat2, lon2) {
 
 function deg2rad(deg) {
     return deg * (Math.PI / 180);
+}
+// 반경을 변경시 생기는 이벤트
+function changeRadius(radius) {
+    clearTableText()
+    runtimeCar.radius = radius;
+    runtimeCar.checkmarker_event_start();
+}
+
+// 너비를 변경할시 생기는 이벤트
+function changeAngle(angle) {
+    runtimeCar.angle = angle;
+    clearTableText()
+    runtimeCar.checkmarker_event_start();
+}
+// 반경 내 사업장 데이터 채우기
+function fillInRadiusTable(objects) {
+// 테이블을 가져옵니다.
+    var table = document.querySelector("#odor_correct_table");
+
+// 기존 thead를 제거합니다.
+    var existingThead = table.querySelector('thead');
+    if (existingThead) {
+        table.removeChild(existingThead);
+    }
+
+// 새로운 thead 요소를 만듭니다.
+    var thead = document.createElement('thead');
+
+// 첫 번째 tr 요소와 td 요소를 만듭니다.
+    var tr1 = document.createElement('tr');
+    var td1 = document.createElement('td');
+    td1.setAttribute('style', 'width: 10%; padding-top: 4px; padding-bottom: 4px; border: 1px solid #30497d; background-color: #1f2f63;');
+    td1.setAttribute('rowspan', Math.max(objects.length, 3)+1);
+    td1.innerText = '사업장 명';
+    tr1.appendChild(td1);
+    thead.appendChild(tr1);
+
+// 나머지 tr과 td 요소를 만듭니다.
+    for (var i = 0; i < Math.max(objects.length, 3); i++) {
+        var tr = document.createElement('tr');
+        var td = document.createElement('td');
+        td.className = 'inRadius';
+        td.setAttribute('style', 'width: 25%; border: 1px solid #30497d');
+        td.innerText = objects[i] ? objects[i].title : '.'; // 객체가 존재하면 title, 아니면 '.'을 설정합니다.
+        tr.appendChild(td);
+        thead.appendChild(tr);
+    }
+
+// 테이블에 thead를 추가합니다.
+    table.appendChild(thead);
+    (window.web || window.webRobot).addClickInRadiusEvent();
+}
+
+
+function fillMatchingPlaceTable(objects) {
+    // 테이블을 가져옵니다.
+    var table = document.querySelector("#wind_odor_correct_table");
+
+// 기존 thead를 제거합니다.
+    var existingThead = table.querySelector('thead');
+    if (existingThead) {
+        table.removeChild(existingThead);
+    }
+
+// 새로운 thead 요소를 만듭니다.
+    var thead = document.createElement('thead');
+
+// 첫 번째 tr 요소와 td 요소를 만듭니다.
+    var tr1 = document.createElement('tr');
+    var td1 = document.createElement('td');
+    td1.setAttribute('style', 'width: 10%; padding-top: 4px; padding-bottom: 4px; border: 1px solid #30497d; background-color: #1f2f63;');
+    td1.setAttribute('rowspan', Math.max(objects.length, 3)+1);
+    td1.innerText = '사업장 명';
+    tr1.appendChild(td1);
+    thead.appendChild(tr1);
+
+// 나머지 tr과 td 요소를 만듭니다.
+    for (var i = 0; i < Math.max(objects.length, 3); i++) {
+        var tr = document.createElement('tr');
+        var td = document.createElement('td');
+        td.className = 'matching';
+        td.setAttribute('style', 'width: 25%; border: 1px solid #30497d');
+        td.innerText = objects[i] ? objects[i].title : '.'; // 객체가 존재하면 title, 아니면 '.'을 설정합니다.
+        tr.appendChild(td);
+        thead.appendChild(tr);
+    }
+
+// 테이블에 thead를 추가합니다.
+    table.appendChild(thead);
+    (window.web || window.webRobot).addClickMatchingEvent()
+}
+
+
+// 악취 원인 사업장 예측 테이블 채우기
+function fillPredictResultTable(objects){
+    var nameCells = document.querySelectorAll(
+        "#predict_result_table .result_place"
+    );
+    var sumCells = document.querySelectorAll(
+        "#predict_result_table .result_sum"
+    );
+    var rankCells = document.querySelectorAll(
+        "#predict_result_table .result_rank"
+    );
+
+
+    // 최대 3개의 객체에서 title을 가져와 셀에 삽입합니다.
+    for (var i = 0; i < Math.min(objects.length, 3); i++) {
+        nameCells[i].innerText = objects[i].title;
+    }
+
+    // 최대 3개의 객체에서 title을 가져와 셀에 삽입합니다.
+    for (var i = 0; i < Math.min(objects.length, 3); i++) {
+        rankCells[i].innerText = objects[i].rank;
+    }
+
+    // 최대 3개의 객체에서 title을 가져와 셀에 삽입합니다.
+    for (var i = 0; i < Math.min(objects.length, 3); i++) {
+        sumCells[i].innerText = objects[i].relativeRatioSum.toFixed(1);
+    }
+
+}
+
+// 반경 및 부채꼴 너비 값을 범주형 데이터로 변환
+function convertToButtonValue(type, value) {
+    if (type === "angle") {
+        // 반경을를 버튼의 값으로 변환합니다.
+        if (value >= 0 && value <= 30) {
+            return 30;
+        } else if (value > 30 && value <= 60) {
+            return 60;
+        } else if (value > 60 && value <= 90) {
+            return 90;
+        } else if (value > 90 && value <= 120) {
+            return 120;
+        } else {
+            return 120; // 해당하는 범위가 없을 경우 null 반환
+        }
+    } else if (type === "radius") {
+        // 반경을 버튼의 값으로 변환합니다.
+        // 예를 들어, 반경이 0 ~ 5000 사이에 있을 때, 1000, 2000, 3000, 4000, 5000 값으로 변환합니다.
+        if (value >= 0 && value <= 500) {
+            return 500;
+        } else if (value > 500 && value <= 1000) {
+            return 1000;
+        } else if (value > 1000 && value <= 2000) {
+            return 2000;
+        } else if (value > 2000 && value <= 3000) {
+            return 3000;
+        } else if (value > 3000 && value <= 4000) {
+            return 4000;
+        } else if (value > 4000 && value <= 5000) {
+            return 5000;
+        } else {
+            return null; // 해당하는 범위가 없을 경우 null 반환
+        }
+    } else {
+        return null; // 유효하지 않은 type일 경우 null 반환
+    }
 }
 async function drawCircularSector(lat, lng, windDirDeg) {
     await google.maps.importLibrary("geometry");
