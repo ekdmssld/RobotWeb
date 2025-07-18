@@ -2,6 +2,29 @@ const fixedDates = {
     R1: "2024-08-13",
     R2: "2025-04-17"
 };
+window.analysisModal = new AnalysisModal("robotAnalysisModal");
+window.compareModal = new CompareModal("robotCompareModal");
+window.customMap = new CustomMap(window.analysisModal, window.compareModal);
+
+// 좌측 메뉴 클릭 이벤트 전체
+function addClickSearchEvent() {
+    const clickSearchPlaceEvent = (event) => {
+        const selectedPlaceTitle = event.target.innerHTML;
+        const selectedPlace = window.sourcePlaceList.places.find(
+            (place) => place.getTitle() == selectedPlaceTitle
+        );
+        if (selectedPlace) {
+            window.robotMap.setCenter(selectedPlace.getLocation());
+            window.robotMap.setZoom(25);
+            selectedPlace.checkmarker_event_start();
+        }
+    };
+
+    document.querySelectorAll(".inRadius, .matching, .result_place").forEach(el =>
+        el.addEventListener("click", clickSearchPlaceEvent)
+    );
+}
+
 
 document.addEventListener("DOMContentLoaded", async () => {
     await waitForGoogleMaps();
@@ -11,11 +34,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.robotPolyline = null;
 
     await window.robotMapInit();
+    addClickSearchEvent();
+
 
     //사업장 리스트 생성 및 지도에 표시
     window.sourcePlaceList = new SourcePlaceList(window.robotMap, null);
-    await fetchAndAddPlaces();  // 아래에 정의된 함수 호출
+
     window.customMap = {};  // 임시 customMap 객체 생성
+    await fetchAndAddPlaces();  // 아래에 정의된 함수 호출
     window.customMap.placeList = window.sourcePlaceList;
 
     // 로봇 선택 이벤트
@@ -212,7 +238,15 @@ async function fetchRobotPath(date, carCode) {
 
 // 마커 초기화
 function clearRobotMarkers() {
-    window.robotMarkers.forEach(marker => marker.setMap(null));
+    window.robotMarkers.forEach(marker => {
+        // marker가 Car 객체인 경우
+        if (marker.marker) {
+            marker.marker.setMap(null);
+        } else {
+            // marker가 google.maps.Marker인 경우
+            marker.setMap(null);
+        }
+    });
     window.robotMarkers = [];
     if (window.robotPolyline) {
         window.robotPolyline.setMap(null);
@@ -227,6 +261,7 @@ function drawRobotMarkers(dataList) {
 
     clearRobotMarkers();  // 기존 마커/선 제거
     const path = [];
+    let currentOpenDetailId = null;
 
     dataList.forEach((item, index) => {
         const position = { lat: item.latitude, lng: item.longitude };
@@ -239,39 +274,53 @@ function drawRobotMarkers(dataList) {
             console.warn("❌ 좌표 없음 또는 잘못된 데이터:", item);
             return;
         }
+        const robotCar = new Car(
+            robotMap,             // 지도
+            window.customMap,     // customMap
+            index + 1,            // titleIndex
+            item.carCode,         // carIndex
+            item.latitude,
+            item.longitude,
+            item.date,
+            item.detailId,
+            null,                 // csv
+            item.windDirection    // 풍향
+        );
 
+        // robotCar의 마커 스타일 커스터마이징
+        robotCar.marker.setIcon({
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 10,
+            fillColor: "red",
+            fillOpacity: 1.0,
+            strokeColor: "#FFFFFF",
+            strokeOpacity: 1.0,
+            strokeWeight: 2,
+        });
 
-        const marker = new google.maps.Marker({
-            position: { lat: item.latitude, lng: item.longitude },
-            map: window.robotMap,
-            icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 10,
-                fillColor: "red",
-                fillOpacity: 1.0,
-                strokeColor: "#FFFFFF",
-                strokeOpacity: 1.0,
-                strokeWeight: 2,
-            },
-            label: {
-                text: String(index + 1),
-                color: "white",
-                fontSize: "12px",
-                fontWeight: "bold"
-            },
-            title: `로봇 위치 (${item.date})`});
+        // 마커 라벨 설정
+        robotCar.marker.setLabel({
+            text: String(index + 1),
+            color: "white",
+            fontSize: "12px",
+            fontWeight: "bold"
+        });
 
-        marker.detailId = item.detailId;
-        marker.carCode = item.carCode;
+        // 마커 제목 설정
+        robotCar.marker.setTitle(`로봇 위치 (${item.date})`);
 
-        let currentOpenDetailId = null; // 전역 변수로 현재 열린 마커 추적
+        // robotCar 마커에 추가 데이터 속성 설정
+        robotCar.marker.itemData = item;
 
-        marker.addListener("click", () => {
-            const detailId = marker.detailId;
-            const carCode = marker.carCode;
+        // Car 객체의 기본 클릭 이벤트를 제거하고 새로운 이벤트 추가
+        google.maps.event.clearListeners(robotCar.marker, 'click');
+
+        robotCar.marker.addListener("click", async () => {
+            const detailId = item.detailId;
+            const carCode = item.carCode;
             const timestamp = item.date;
 
-            // ✅ 현재 클릭된 detailId 기억
+            // 같은 마커 클릭 시 모달 토글
             const modal = document.getElementById("analysisModal");
             if (currentOpenDetailId === detailId) {
                 if (modal) modal.style.display = "none";
@@ -280,93 +329,79 @@ function drawRobotMarkers(dataList) {
             }
             currentOpenDetailId = detailId;
 
-            // ✅ 좌표 정보, 풍향 채우기
-            fillCoordinateTable(item.latitude, item.longitude, item.date);
-            fillOdorDirection(item.windDirection ?? "-");
+            try {
+                // 1. 좌표 정보, 풍향 채우기
+                fillCoordinateTable(item.latitude, item.longitude, item.date);
+                fillOdorDirection(item.windDirection ?? "-");
 
-            // ✅ 센서 데이터 불러오기
-            fetch(`/arims/robot/sensor-data?detailId=${detailId}&carCode=${carCode}`)
-                .then(res => res.json())
-                .then(data => {
-                    showSensorModal(data);
-                })
-                .catch(err => {
-                    console.error("❌ 센서 데이터 호출 실패:", err);
-                    alert("센서 데이터를 불러오는 데 실패했습니다.");
-                });
+                // 2. 센서 데이터 불러오기
+                const sensorResponse = await fetch(`/arims/robot/sensor-data?detailId=${detailId}&carCode=${carCode}`);
+                const sensorData = await sensorResponse.json();
+                showSensorModal(sensorData);
 
-            // ✅ 날씨 정보 불러오기
-            fetch(`/arims/robot/weather-data?carCode=${carCode}&timestamp=${timestamp}`)
-                .then(response => {
-                    if (!response.ok) throw new Error("데이터 없음");
-                    return response.text();
-                })
-                .then(text => {
-                    if (!text) throw new Error("응답 body 비어 있음");
-                    return JSON.parse(text);
-                })
-                .then(data => {
-                    fillWeatherInfo(data);
-                })
-                .catch(err => {
-                    console.error("🚨 날씨 데이터 호출 실패", err);
-                });
-
-            // ✅ 화학물질 예측 및 사업장 비교 로직 실행
-            (async () => {
+                // 3. 날씨 정보 불러오기
                 try {
-                    const raw = await fetchChemicalData(detailId);
-                    const integrated = integrateChemicalData(raw);
-                    const odorResult = await odorPrediction(integrated);
-
-                    // console.log("🧪 raw chemicalData:", raw);
-                    // console.log("📊 integrated (with dilutionRate, ratio):", integrated);
-                    // console.log("🌫️ odorPrediction:", odorResult);
-
-                    fillOdorPrediction(odorResult);
-                    openRobotModal(integrated, odorResult);
-
-                    const places = (window.customMap?.placeList?.places || [])
-                        .filter(place => {
-                            const distance = getDistance(item.latitude, item.longitude, place.lat, place.lon);
-                            return distance <= 2; // 2km 이내 사업장만 비교
-                        });
-
-                    const commonData = await Promise.all(places.map(async place => {
-                        const placeChemicals = await place.getPlaceChemicalData();
-                        const matching = raw.filter(r =>
-                            placeChemicals.some(p => p.chemicalName === r.chemicalName)
-                        );
-                        return {
-                            title: place.getTitle(),
-                            commonObject: matching
-                        };
-                    }));
-
-
-                    console.log("🏭 사업장별 매칭 결과:", commonData);
-
-                    const valueRank = sortValueRank(commonData);
-                    const ratioRank = sortRatioRank(commonData);
-
-                    console.log("📈 valueRank (농도 기준):", valueRank);
-                    console.log("📉 ratioRank (비율 기준):", ratioRank);
-
-                    // 모달 띄우기
-                    // 항상 모달 띄우기 (비어 있어도)
-                    window.robotCompareModal.open_modal();
-                    window.robotCompareModal.modal_init(trimTen(integrated), valueRank);
-                    window.robotCompareModal.modal_init2(trimTen(integrated), ratioRank);
-                } catch (err) {
-                    console.error("🔥 화학물질 비교/모달 처리 중 오류 발생:", err);
+                    const weatherResponse = await fetch(`/arims/robot/weather-data?carCode=${carCode}&timestamp=${timestamp}`);
+                    if (weatherResponse.ok) {
+                        const weatherText = await weatherResponse.text();
+                        if (weatherText) {
+                            const weatherData = JSON.parse(weatherText);
+                            fillWeatherInfo(weatherData);
+                        }
+                    }
+                } catch (weatherErr) {
+                    console.error("🚨 날씨 데이터 호출 실패", weatherErr);
                 }
-            })();
+
+                // 4. 화학물질 예측 및 사업장 비교 로직
+                const raw = await fetchChemicalData(detailId);
+                const integrated = integrateChemicalData(raw);
+                const odorResult = await odorPrediction(integrated);
+
+                // 악취 예측 결과 표시
+                fillOdorPrediction(odorResult);
+                openRobotModal(integrated, odorResult);
+
+                // 2km 이내 사업장 비교
+                const places = (window.customMap?.placeList?.places || [])
+                    .filter(place => {
+                        const distance = getDistance(item.latitude, item.longitude, place.lat, place.lon);
+                        return distance <= 2;
+                    });
+
+                const commonData = await Promise.all(places.map(async place => {
+                    const placeChemicals = await place.getPlaceChemicalData();
+                    const matching = raw.filter(r =>
+                        placeChemicals.some(p => p.chemicalName === r.chemicalName)
+                    );
+                    return {
+                        title: place.getTitle(),
+                        commonObject: matching
+                    };
+                }));
+
+                const valueRank = sortValueRank(commonData);
+                const ratioRank = sortRatioRank(commonData);
+
+                // 비교 모달 표시
+                window.robotCompareModal.open_modal();
+                window.robotCompareModal.modal_init(trimTen(integrated), valueRank);
+                window.robotCompareModal.modal_init2(trimTen(integrated), ratioRank);
+
+            } catch (err) {
+                console.error("🔥 마커 클릭 이벤트 처리 중 오류 발생:", err);
+                alert("데이터를 불러오는 데 실패했습니다.");
+            }
         });
-        window.robotMarkers.push(marker);
+        // robotCar 마커를 배열에 추가 (Car 객체 전체를 저장하거나 마커만 저장)
+        window.robotMarkers.push(robotCar.marker);
+        // 또는 Car 객체 전체를 저장하려면:
+        // window.robotMarkers.push(robotCar);
+
         path.push(position);
     });
 
-    // 선 그리기
+    // 경로 선 그리기
     if (path.length > 1) {
         window.robotPolyline = new google.maps.Polyline({
             path,

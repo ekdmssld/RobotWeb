@@ -874,7 +874,7 @@ class Web {
   async makeDate(event) {
     const select = document.getElementById("selectDate");
 
-    if ((selectDate.getElementsByTagName("option").length == 0) || event) {
+    if ((select.getElementsByTagName("option").length == 0) || event) {
       // 내부 초기화
       select.innerHTML = "";
 

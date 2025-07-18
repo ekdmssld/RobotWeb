@@ -24,28 +24,21 @@ class CarList {
   }
 
   //차량 GPS 데이터 추가
-  async addPath(carLocation) {
-    if (this.carLocations.length === 0) {
+  async addPath(carLocation, force = false) {
+    if (force || this.carLocations.length === 0) {
       this.carLocations.push(carLocation);
     } else {
       let newLocation = this.replaceLocationObject(carLocation);
-      console.log(`carLocation: ${newLocation}`);
-      if (
-        (await this.distanceFilter(
-          // 마지막으로 저장된 차량 gps데이터와 100m 이상 차이가 나면 true
-          this.replaceLocationObject(
-            this.carLocations[this.carLocations.length - 1]
-          )
-          ,
+      if (await this.distanceFilter(
+          this.replaceLocationObject(this.carLocations[this.carLocations.length - 1]),
           newLocation,
           100
-        ))
-      )
-      {
+      )) {
         this.carLocations.push(carLocation);
       }
     }
   }
+
 
   // 실시간 경로데이터 추가 (필터링 없음)
   async addRealtimePath(carLocation) {
@@ -56,7 +49,7 @@ class CarList {
     }
   }
 
-  //{lat : "" , lng : ""} 형태의 객체를 구글 위치 객체로 변경 
+  //{lat : "" , lng : ""} 형태의 객체를 구글 위치 객체로 변경
   replaceLocationObject(location) {
     return new google.maps.LatLng(location.lat, location.lng);
   }
@@ -76,6 +69,7 @@ class CarList {
       windDirection
     );
 
+    console.log("addCar 호출됨", carIndex);
     this.cars.push(car);
     this.carMarkers.push(car.marker);
     this.carTitleIndex += 1;
@@ -144,20 +138,19 @@ class CarList {
   // 차량 검색 select에 데이터 추가
   makeSelectionCar() {
     const select = document.getElementById("selectCarMarker");
-    // select 비우기
-    select.innerHTML = "";
+    if (!select) {
+      console.error("❌ selectCarMarker 요소가 없음!");
+      return;
+    }
+    console.log("차량 리스트", this.cars);
 
-    // 동적으로 option 만들기
-    const defaultOption = document.createElement("option");
-    defaultOption.text = "차량을 선택하세요";
-    defaultOption.value = "";
-    select.appendChild(defaultOption);
+    // 기본 옵션 추가
+    select.innerHTML = `<option value="">차량을 선택하세요</option>`;
 
-    // 차량마커들의 titleIndex로 option에 값을 넣고 추가
-    this.cars.forEach((car) => {
+    this.cars.forEach((car, index) => {
       const option = document.createElement("option");
-      option.text = car.titleIndex;
-      option.value = car.titleIndex;
+      option.value = car.carIndex; // 또는 car.carCode
+      option.textContent = `${car.titleIndex}`;
       select.appendChild(option);
     });
   }
