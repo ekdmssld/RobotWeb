@@ -154,10 +154,21 @@ class AnalysisModal extends Modal {
 
   // 냄새 유형 테이블 헤더만들기 및 바디만들기
   makePredictionTablehead(predictionData, table) {
-    const tbody = table.getElementsByTagName("thead")[0];
-    tbody.innerHTML = "";
-    tbody.innerHTML += this.generatePredictionChemicalRows(predictionData);
+    if (!table) {
+      console.warn("odorPredictTable 요소가 존재하지 않습니다.");
+      return;
+    }
+
+    const thead = table.getElementsByTagName("thead")[0];
+    if (!thead) {
+      console.warn("thead가 존재하지 않습니다.");
+      return;
+    }
+
+    thead.innerHTML = "";
+    thead.innerHTML += this.generatePredictionChemicalRows(predictionData);
   }
+
 
   // 냄새 유형 테이블 바디 만들기
   generatePredictionChemicalRows(data) {

@@ -86,6 +86,8 @@ function openRobotModal(chemicalData, odorResult) {
     const compareModal = document.getElementById("robotCompareModal");
     const header = document.querySelector(".modal_1-content");
     const table = document.getElementById("integratedTable");
+    const odorTable = document.getElementById("odorPredictTable");
+    odorTable.innerHTML = generatePredictionChemicalRows(odorResult);
 
     // 🟦 두 모달 모두 열기
     analysisModal.style.display = "block";
@@ -95,6 +97,9 @@ function openRobotModal(chemicalData, odorResult) {
     compareModal.style.display = "block";
     compareModal.style.left = "72%";
     compareModal.style.top = "50%";
+
+    const modalText = document.getElementById("modalText");
+    modalText.innerText = `${runtimeCar.titleIndex}번 지점의 화학 물질 및 악취 분류 정보`;
 
     // 드래그 기능 설정
     let isDragging = false;
@@ -142,6 +147,7 @@ function openRobotModal(chemicalData, odorResult) {
     </tbody>
   `;
 
+
     // // 악취 예측 결과
     // kindField.textContent = odorResult[0]?.pred_smell_kind || "-";
     // strengthField.textContent = odorResult[1]?.pred_smell_strength?.toFixed(1) || "-";
@@ -151,6 +157,17 @@ class RobotCompareModal extends CompareModal {
     constructor(modalId) {
         super(modalId);
     }
+}
+function generatePredictionChemicalRows(data) {
+
+    let html = "";
+
+    const pred_smell_kind = data[0]?.pred_smell_kind || "-";
+    html += `<tr><td width='122px' style="background-color: #30497D">악취 종류</td><td width='122px' colspan="3">${pred_smell_kind}</td></tr>`;
+    const pred_smell_strength = data[1]?.pred_smell_strength.toFixed(1) || "-";
+    html += `<tr><td width='122px' style="background-color: #30497D">악취 세기</td><td width='122px' colspan="3" >${pred_smell_strength}</td></tr>`;
+
+    return html;
 }
 window.robotCompareModal = new RobotCompareModal("robotCompareModal");
 window.RobotModal = RobotModal;
