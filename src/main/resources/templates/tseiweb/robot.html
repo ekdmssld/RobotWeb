@@ -114,19 +114,6 @@
     </div>
 </div>
 
-<!--&lt;!&ndash; robotAnalysisModal &ndash;&gt;-->
-<!--<div id="robotAnalysisModal" class="modal" style="display: none;">-->
-<!--    <div id="robotModalHeader" class="modal-header">-->
-<!--        <span class="close" onclick="document.getElementById('robotAnalysisModal').style.display='none'">×</span>-->
-<!--    </div>-->
-<!--    <div class="modal-body" style="padding: 10px;">-->
-<!--        <table id="robotIntegratedTable">-->
-<!--            <thead></thead>-->
-<!--            <tbody></tbody>-->
-<!--        </table>-->
-<!--    </div>-->
-<!--</div>-->
-
 <div class="contents">
     <leftmenu th:replace="tseiweb/leftmenu"></leftmenu>
 
@@ -192,6 +179,32 @@
     </table>
 </div>
 
+<!-- 버튼 -->
+<button id="openRobotPathModal" class="robot-path-btn">로봇 주행 경로 입력</button>
+
+<!-- 모달 -->
+<div id="robotPathModal" style="display:none; position:fixed; left:30%; top:20%; background:white; padding:20px; border:1px solid #ccc; z-index:9999;">
+    <h3>로봇 주행 경로 설정</h3>
+    <label for="robotSelect">로봇 선택:</label>
+    <select id="robotSelect">
+        <option value="R1">R1</option>
+        <option value="R2">R2</option>
+    </select><br><br>
+
+    <label for="routeType">경로 유형:</label>
+    <select id="routeType">
+        <option value="oneway">편도</option>
+        <option value="round">왕복</option>
+        <option value="circle">순환</option>
+    </select><br><br>
+
+    <button id="startPath">시작</button>
+    <button id="endPath">끝남</button>
+    <button id="viewSavedPath">확인</button>
+    <button onclick="document.getElementById('robotPathModal').style.display='none'">닫기</button>
+</div>
+
+
 
 <!-- 키워드 자동완성 예시 (숨김 상태) -->
 <div id="relatedKeywords" style="font-size: 15px; position: fixed; z-index: 9; left: 667px; top: 90px; background-color: white; border: 1px solid #ccc; max-height: 200px; width: 12vw; padding: 5px; overflow-y: auto; display: none;"></div>
@@ -205,6 +218,7 @@
 <script src="/static/tseiweb/js/MonitoringSystem/CarList.js"></script>
 <script src="/static/tseiweb/js/MonitoringSystem/RobotModal.js"></script>
 <script src="/static/tseiweb/js/MonitoringSystem/WebRobot.js"></script>
+<script src="/static/tseiweb/js/MonitoringSystem/RobotControl.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", async () => {
         const webRobot = new WebRobot();

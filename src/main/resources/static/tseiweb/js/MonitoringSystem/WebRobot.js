@@ -101,40 +101,25 @@ class WebRobot {
         }
     }
 
-
-    // 장소 검색기능
     searchPlace() {
-        // 장소 검색창에 입력한 값 가져오기
-        const selectedPlaceTitle =
-            document.getElementById("selectPlaceMarker").value;
+        const selectedPlaceTitle = document.getElementById("selectPlaceMarker").value;
 
-        // 장소 리스트에서 검색창에 입력한 값고 이름이 같은 마커 가져오기
-        var selectedPlace = this.sourcePlaceList.places.find(
+        const selectedPlace = this.sourcePlaceList.places.find(
             (place) => place.getTitle() == selectedPlaceTitle
         );
 
-        // 검색결과가 있는 경우
-        if (selectedPlace) {
-            // console.log("✅ 검색된 장소:", selectedPlace.getTitle());
-            const pos = selectedPlace.getLocation();
-            const center = new google.maps.LatLng(pos.lat(), pos.lng());
-
-            // console.log("📌 좌표:", pos.lat(), pos.lng());
-            // console.log("🗺️ map 객체 확인:", this.customMap.map);
-
-            // 클러스터 잠시 해제해도 좋음: this.sourcePlaceList.clearCluster();
-
-            setTimeout(() => {
-                this.customMap.clickoffPlace();
-                this.customMap.map.setCenter(center);
-                this.customMap.map.panTo(center);
-                this.customMap.map.setZoom(25); // 다시 확대
-                selectedPlace.checkmarker_event_start();
-            }, 300);
-        } else {
+        if (!selectedPlace) {
             console.warn("❌ 해당하는 장소를 찾을 수 없습니다.");
+            return;
         }
+        google.maps.event.trigger(this.customMap.map, "resize");
+
+        const center = new google.maps.LatLng(selectedPlace[0].latitude, selectedPlace[0].longitude);정
+
+        selectedPlace.checkmarker_event_start();
     }
+
+
 
     // 전체 리스트 데이터 세팅하기
     async setData() {

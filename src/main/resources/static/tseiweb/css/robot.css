@@ -103,3 +103,25 @@
 .modal_2-content table th{
     background-color: #30497D;
 }
+/* 로봇 경로 버튼 스타일 */
+.robot-path-btn {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    z-index: 9999;
+    transition: all 0.2s ease;
+}
+
+.robot-path-btn:hover {
+    background-color: #004999;
+    transform: scale(1.05);
+}

@@ -357,3 +357,5 @@ class CompareModal extends Modal {
 
 
 }
+window.AnalysisModal = AnalysisModal;
+window.CompareModal = CompareModal;

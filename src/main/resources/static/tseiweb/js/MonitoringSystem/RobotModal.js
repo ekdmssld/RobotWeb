@@ -171,3 +171,5 @@ function generatePredictionChemicalRows(data) {
 }
 window.robotCompareModal = new RobotCompareModal("robotCompareModal");
 window.RobotModal = RobotModal;
+
+window.AnalysisModal = AnalysisModal;

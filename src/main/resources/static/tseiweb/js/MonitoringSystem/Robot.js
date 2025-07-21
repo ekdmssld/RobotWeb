@@ -330,14 +330,14 @@ function drawRobotMarkers(dataList) {
             }
 
             window.robotCircle = new google.maps.Circle({
-                strokeColor: "#0099ff",
+                strokeColor: "red",
                 strokeOpacity: 0.8,
                 strokeWeight: 2,
-                fillColor: "#80caff",
+                fillColor: "green",
                 fillOpacity: 0.35,
                 map: window.robotMap,
                 center: { lat: item.latitude, lng: item.longitude },
-                radius: 1000 // 반경 2km
+                radius: 2000 // 반경 2km
             });
             await drawCircularSector(item.latitude, item.longitude, item.windDirection);
             setRadioButtons(runtimeCar)
@@ -769,7 +769,7 @@ async function drawCircularSector(lat, lng, windDirDeg) {
     await google.maps.importLibrary("geometry");
 
     const center = new google.maps.LatLng(lat, lng);
-    const radius = 1000; // 2km
+    const radius = 2000; // 2km
     const sectorAngle = 60; // 부채꼴 각도 (예: ±30도)
 
     const startAngle = windDirDeg - sectorAngle / 2;
