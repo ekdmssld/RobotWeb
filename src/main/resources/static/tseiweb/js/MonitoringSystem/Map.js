@@ -55,7 +55,7 @@ class CustomMap {
       disableDoubleClickZoom: true,
       draggable: true,
       keyboardShortcuts: false,
-      gestureHandling: "greedy",
+      gestureHandling: "none",
       zoomControl: false,
       mapTypeControl: false,
       scaleControl: false,

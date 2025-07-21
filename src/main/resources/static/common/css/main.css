@@ -107,3 +107,7 @@ input {
     border-radius: 2px;
     box-shadow: inset 0px 0px 5px white;
 }
+/* 커서 강제 변경 */
+.crosshair-cursor * {
+    cursor: crosshair !important;
+}

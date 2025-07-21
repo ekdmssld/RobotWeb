@@ -11,18 +11,18 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/arims/robotPath")
+@RequestMapping("/arims")
 public class RobotPathController {
     @Autowired
     private RobotPathService service;
 
-    @PostMapping("/save")
+    @PostMapping("/robotPath/save")
     public ResponseEntity<String> savePath(@RequestBody RobotPathPointDTO dto){
         service.saveRobotPath(dto);
         return ResponseEntity.ok("Saved Successfully");
     }
 
-    @GetMapping("/get")
+    @GetMapping("/robotPath/get")
     public ResponseEntity<List<RobotPath>> getPath(
             @RequestParam String carCode,
             @RequestParam String date

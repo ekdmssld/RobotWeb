@@ -1,26 +1,40 @@
 package com.tsei.www.vo;
 
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "robot_path")
+@Setter
 public class RobotPath {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "car_code")
     private String carCode;
-    private LocalDate date;
-    private String routeType;
-    private Double latitude;
-    private Double longitude;
-    private LocalDateTime recordTime;
-    private Double windDir;
 
-    // Getter & Setter
+    @Column(name = "date")
+    private LocalDate date;
+
+    @Column(name = "route_type")
+    private String routeType;
+
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
+    @Column(name = "record_time")
+    private LocalDateTime recordTime;
+
+    @Column(name = "wind_dir")
+    private String windDir;
     public Long getId() {
         return id;
     }
@@ -77,11 +91,12 @@ public class RobotPath {
         this.recordTime = recordTime;
     }
 
-    public Double getWindDir() {
+    public String getWindDir() {
         return windDir;
     }
 
-    public void setWindDir(Double windDir) {
+    public void setWindDir(String windDir) {
         this.windDir = windDir;
     }
+
 }

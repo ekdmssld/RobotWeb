@@ -101,7 +101,6 @@ class CarList {
 
   // GPS 경로 그리기
   drawPath() {
-    console.log("path", this.carLocations);
 
     // 초기에는 모든 위치 값을 path에 추가합니다.
     var path = new google.maps.Polyline({
@@ -142,8 +141,6 @@ class CarList {
       console.error("❌ selectCarMarker 요소가 없음!");
       return;
     }
-    console.log("차량 리스트", this.cars);
-
     // 기본 옵션 추가
     select.innerHTML = `<option value="">차량을 선택하세요</option>`;
 

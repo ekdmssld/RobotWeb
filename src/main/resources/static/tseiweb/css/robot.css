@@ -125,3 +125,9 @@
     background-color: #004999;
     transform: scale(1.05);
 }
+.crosshair-cursor {
+    cursor: crosshair !important;
+}
+.crosshair-cursor * {
+    cursor: crosshair !important;
+}

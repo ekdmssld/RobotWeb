@@ -18,7 +18,7 @@ public class RobotPathPointDTO {
         private double latitude;
         private double longitude;
         private String date;
-        private Double windDirection;
+        private String windDirection;
 
         public double getLatitude() {
             return latitude;
@@ -32,7 +32,7 @@ public class RobotPathPointDTO {
             return date;
         }
 
-        public Double getWindDirection() {
+        public String getWindDirection() {
             return windDirection;
         }
     }

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,7 +27,10 @@ public class RobotPathService {
             entity.setRouteType(dto.getType());
             entity.setLatitude(p.getLatitude());
             entity.setLongitude(p.getLongitude());
-            entity.setRecordTime(LocalDateTime.parse(p.getDate()));
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+// 또는 ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+            entity.setRecordTime(LocalDateTime.parse(p.getDate(), formatter));
+
             entity.setWindDir(p.getWindDirection());
             return entity;
         }).collect(Collectors.toList());
