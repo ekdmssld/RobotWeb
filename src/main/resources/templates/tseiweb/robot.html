@@ -200,6 +200,7 @@
 
     <button id="startPath">시작</button>
     <button id="endPath">끝남</button>
+    <button id="saveRobotPathBtn">경로 저장</button>
     <button id="viewSavedPath">확인</button>
     <button onclick="document.getElementById('robotPathModal').style.display='none'">닫기</button>
 </div>
@@ -209,6 +210,7 @@
 <!-- 키워드 자동완성 예시 (숨김 상태) -->
 <div id="relatedKeywords" style="font-size: 15px; position: fixed; z-index: 9; left: 667px; top: 90px; background-color: white; border: 1px solid #ccc; max-height: 200px; width: 12vw; padding: 5px; overflow-y: auto; display: none;"></div>
 <!-- 6. 로딩순서 중요한 모듈 (type="module") -->
+<script src="/static/tseiweb/js/MonitoringSystem/Loading.js"></script>
 <script src="/static/tseiweb/js/MonitoringSystem/Map.js"></script>
 <script src="/static/tseiweb/js/MonitoringSystem/SourcePlace.js"></script>
 <script src="/static/tseiweb/js/MonitoringSystem/SourcePlaceList.js"></script>
@@ -225,6 +227,10 @@
         await webRobot.init();
         window.webRobot = webRobot; // 전역에 등록
     });
+    document.getElementById("saveRobotPathBtn").addEventListener("click", () => {
+        robotControl.savePathToServer();
+    });
+
 </script>
 
 </body>

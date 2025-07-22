@@ -25,46 +25,20 @@ function addClickSearchEvent() {
     );
 }
 
-
+// Robot.js
 document.addEventListener("DOMContentLoaded", async () => {
-    await waitForGoogleMaps();
+    const analysisModal = new AnalysisModal("analysisModal");
+    const compareModal = new CompareModal("robotCompareModal");
+    window.customMap = new CustomMap(analysisModal, compareModal);
+    await window.customMap.init(35.456966, 129.32799);  // 지도 생성
 
-    window.robotModal = new RobotModal("analysisModal");
-    window.robotMarkers = [];
-    window.robotPolyline = null;
-
-    await window.robotMapInit();
-    addClickSearchEvent();
-
-
-    //사업장 리스트 생성 및 지도에 표시
-    window.sourcePlaceList = new SourcePlaceList(window.robotMap, null);
-
-    // window.customMap = {};  // 임시 customMap 객체 생성
-    await fetchAndAddPlaces();  // 아래에 정의된 함수 호출
+// 지도 및 커스텀맵 연결
+    window.sourcePlaceList = new SourcePlaceList(window.customMap.map, window.customMap);  // ✅ customMap 전달
+    await fetchAndAddPlaces();
     window.customMap.placeList = window.sourcePlaceList;
 
-    // 로봇 선택 이벤트
-    document.getElementById("carCodeSelect").addEventListener("change", handleCarCodeChange);
-
-    // 조회 버튼
-    document.getElementById("searchRobot").addEventListener("click", () => {
-        document.getElementById("loading-anim").style.display = "block";
-
-        const carCode = document.getElementById("carCodeSelect").value;
-        const date = document.getElementById("availableDates").value;
-
-        if (!carCode || !date) {
-            alert("로봇과 날짜를 선택해주세요");
-            document.getElementById("loading-anim").style.display = "none";
-            return;
-        }
-
-        fetchRobotPath(date, carCode);
-    });
-
-    await handleCarCodeChange(); // 초기 날짜 목록 로딩
 });
+
 
 //22가지 화학물질 데이터 불러오기
 async function fetchChemicalData(detailId){

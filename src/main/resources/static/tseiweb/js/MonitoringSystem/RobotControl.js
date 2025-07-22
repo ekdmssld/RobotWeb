@@ -154,65 +154,48 @@ document.getElementById("viewSavedPath").addEventListener("click", async () => {
 
 // ✅ 지도 클릭 리스너 등록 (개선된 버전)
 function registerRobotClickListener() {
-    const map = getGoogleMap();
-    if (!map) {
-        console.error("❌ map 객체를 찾을 수 없어 클릭 리스너 등록 실패");
+    try {
+        const map = getGoogleMap();
+        if (!map) {
+            console.error("❌ map 객체를 찾을 수 없어 클릭 리스너 등록 실패");
+            return false;
+        }
+
+        if (window.robotClickListener) {
+            google.maps.event.removeListener(window.robotClickListener);
+        }
+
+        const mapDiv = document.getElementById("map");
+        if (mapDiv) {
+            mapDiv.removeEventListener("click", window.robotDOMClickListener);
+        }
+
+        // ✅ 이 부분에서 에러가 나는지 확인
+        window.robotClickListener = map.addListener("click", (e) => {
+            console.log("📍 지도 클릭 발생");
+            handleMapClick(e);
+        });
+
+        return true;
+
+    } catch (err) {
+        console.error("❌ 클릭 리스너 등록 중 에러:", err);
         return false;
     }
 
-    // 기존 리스너가 있다면 제거 (중복 방지)
-    if (window.robotClickListener) {
-        google.maps.event.removeListener(window.robotClickListener);
-    }
-
-    // DOM 레벨에서도 클릭 리스너 제거 (혹시 있을 수 있는 방해 요소)
     const mapDiv = document.getElementById("map");
-    if (mapDiv) {
-        // 기존 DOM 이벤트 리스너 제거
-        mapDiv.removeEventListener("click", window.robotDOMClickListener);
-    }
-
-    // 방법 1: Google Maps 이벤트 리스너 (기존 방식)
-    window.robotClickListener = map.addListener("click", (e) => {
-        handleMapClick(e);
+    mapDiv.addEventListener("click", (event) => {
+        console.log("📍 DOM 클릭 발생 (백업용)");
     });
 
-    // 방법 2: DOM 이벤트 리스너 추가 (백업 방식)
-    window.robotDOMClickListener = (event) => {
-        if (!pathRecording) return;
+}
 
-        // 지도 좌표 계산 (픽셀을 위경도로 변환)
-        const mapDiv = document.getElementById("map");
-        const rect = mapDiv.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
 
-        // Google Maps의 fromPointToLatLng 사용
-        const projection = map.getProjection();
-        if (projection) {
-            const bounds = map.getBounds();
-            const ne = bounds.getNorthEast();
-            const sw = bounds.getSouthWest();
 
-            const lat = sw.lat() + (ne.lat() - sw.lat()) * (1 - y / mapDiv.offsetHeight);
-            const lng = sw.lng() + (ne.lng() - sw.lng()) * (x / mapDiv.offsetWidth);
-
-            // 가짜 이벤트 객체 생성
-            const fakeEvent = {
-                latLng: {
-                    lat: () => lat,
-                    lng: () => lng
-                }
-            };
-
-            handleMapClick(fakeEvent);
-        }
-    };
-
-    if (mapDiv) {
-        mapDiv.addEventListener("click", window.robotDOMClickListener, true); // 캡처링 단계에서 처리
-    }
-    return true;
+function isDuplicate(lat, lng) {
+    return robotPathPoints.some(
+        p => Math.abs(p.latitude - lat) < 0.000001 && Math.abs(p.longitude - lng) < 0.000001
+    );
 }
 
 // 클릭 처리 로직을 별도 함수로 분리
@@ -226,6 +209,13 @@ function handleMapClick(e) {
     const lng = e.latLng.lng();
 
     console.log("실제 좌표 클릭", lat, lng);
+
+    // 중복 좌표 체크
+    if (isDuplicate(lat, lng)) {
+        console.warn("⚠️ 이미 동일한 좌표가 등록되어 있습니다.");
+        return;
+    }
+
     try {
         const map = getGoogleMap();
         if (!map) {
@@ -297,32 +287,42 @@ function waitForMapReady(maxAttempts = 10, interval = 1000) {
 // ✅ 초기화
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        // Google Maps API 대기
         await waitForGoogleMaps();
 
-        // WebRobot 초기화
+        // WebRobot 먼저 초기화
         window.webRobot = new WebRobot();
         await webRobot.init();
         webRobot.addEventListeners();
-        // 지도 준비 대기 및 클릭 리스너 등록
-        await waitForMapReady();
-        const success = registerRobotClickListener();
 
-        if (success) {
-            console.log("🎉 로봇 경로 설정 초기화 완료!");
+        // ✅ 지도 객체가 초기화될 때까지 기다리기
+        await waitForMapReady();
+
+        // ⛳ 디버그 출력
+        const map = getGoogleMap();
+        console.log("🧭 getGoogleMap() 결과:", map);
+        console.log("👉 typeof map.getCenter:", typeof map?.getCenter);
+
+        // ✅ 반드시 지도 객체가 있어야 등록 시도
+        if (map && typeof map.getCenter === "function") {
+            const success = registerRobotClickListener();
+            if (success) {
+                console.log("🎉 로봇 경로 설정 초기화 완료!");
+            } else {
+                console.error("❌ 클릭 리스너 등록 실패 (지도 있음)");
+            }
         } else {
-            console.error("❌ 클릭 리스너 등록 실패");
+            console.error("❌ 지도 객체가 올바르지 않음");
         }
 
     } catch (error) {
         console.error("❌ 초기화 실패:", error);
-        // 5초 후 재시도
         setTimeout(() => {
             console.log("🔄 5초 후 재시도...");
             registerRobotClickListener();
         }, 5000);
     }
 });
+
 
 // ✅ 디버깅용 함수들
 window.debugRobotPath = {

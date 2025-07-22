@@ -5,32 +5,64 @@ class WebRobot {
     }
 
     async init() {
-        this.analysisModal = new AnalysisModal("analysisModal");
-        this.compareModal = new CompareModal("robotCompareModal");
-        this.customMap = new CustomMap(this.analysisModal, this.compareModal);
-        this.sourcePlaceList = new SourcePlaceList(this.customMap.map, this.customMap);
-        this.carList = new CarList(this.customMap.map, this.customMap);
+        return new Promise((resolve, reject) => {
+            this.loading = new Loading("loading-anim", "process-bar");
+            this.analysisModal = new AnalysisModal("analysisModal");
+            this.compareModal = new CompareModal("robotCompareModal");
+            this.customMap = new CustomMap(this.analysisModal, this.compareModal);
 
-        this.customMap.setPlaceList(this.sourcePlaceList);
-        this.customMap.setCarList(this.carList);
+            const mode = $("#selectQueue option:selected").val();
 
-        const mode = $("#selectQueue option:selected").val();
-        await this.customMap.init(35.456966, 129.32799);
+            this.customMap.init(35.456966, 129.32799).then(async () => {
+                this.carList = new CarList(this.customMap.map, this.customMap);
+                this.sourcePlaceList = new SourcePlaceList(this.customMap.map, this.customMap);
+                this.customMap.setCarList(this.carList);
+                this.customMap.setPlaceList(this.sourcePlaceList);
 
-        if (mode === "전체") {
-            await this.setData();
-        } else if (mode === "순차적") {
-            await this.setSequentialData();
-        } else if (mode === "실시간") {
-            await this.makeDate();
-            await this.setPlaceData();
-            this.fetchRealtimeCar();
-            this.fetchRealtimeCarLocation();
-            realtime_interval = setInterval(this.fetchRealtimeCar, 1000);
-            realtime_interval2 = setInterval(this.fetchRealtimeCarLocation, 1000);
-            realtime_interval_time = setInterval(this.setIntervalTime, 1000);
-        }
+                if (mode == "전체") {
+                    // 지도 중심위치 지정 및 초기화
+                    this.customMap
+                        .init(35.456966, 129.32799)
+                        .then(async () => {
+                            // 차량 및 장소 객체 선언
+                            this.carList = new CarList(this.customMap.map, this.customMap);
+                            this.sourcePlaceList = new SourcePlaceList(
+                                this.customMap.map,
+                                this.customMap
+                            );
+
+                            // 지도객체 차량 및 장소 객체 참조 추가
+                            this.customMap.setCarList(this.carList);
+                            this.customMap.setPlaceList(this.sourcePlaceList);
+
+                            // 차량 및 장소 데이터 세팅
+                            await this.setData();
+                            this.loading.loading_off();
+                            resolve();
+                        })
+                        .catch((error) => {
+                            reject(error); // 오류 발생 시 Promise reject 호출
+                        });
+                } else if (mode === "순차적") {
+                    await this.setSequentialData();
+                } else if (mode === "실시간") {
+                    await this.makeDate();
+                    await this.setPlaceData();
+                    this.fetchRealtimeCar();
+                    this.fetchRealtimeCarLocation();
+                    realtime_interval = setInterval(this.fetchRealtimeCar, 1000);
+                    realtime_interval2 = setInterval(this.fetchRealtimeCarLocation, 1000);
+                    realtime_interval_time = setInterval(this.setIntervalTime, 1000);
+                }
+
+                this.loading.loading_off();
+                resolve();
+            }).catch(error => {
+                reject(error);
+            });
+        });
     }
+
     // 좌측 메뉴 클릭 이벤트 일괄 추가하기
     addClickSearchEvent() {
         const clickSearchPlaceEvent = (event) => {
@@ -102,27 +134,47 @@ class WebRobot {
     }
 
     searchPlace() {
-        const selectedPlaceTitle = document.getElementById("selectPlaceMarker").value;
+        const selectedPlaceTitle = document.getElementById("selectPlaceMarker").value.trim().replace(/\s+/g, "");
 
         const selectedPlace = this.sourcePlaceList.places.find(
-            (place) => place.getTitle() == selectedPlaceTitle
+            (place) => place.getTitle().trim().replace(/\s+/g, "") === selectedPlaceTitle
         );
+        // 검색결과가 있는 경우
+        if (selectedPlace) {
 
-        if (!selectedPlace) {
-            console.warn("❌ 해당하는 장소를 찾을 수 없습니다.");
-            return;
+            // 장소 클릭시 빨간색 제거
+            this.customMap.clickoffPlace();
+            const center = selectedPlace.getLocation();
+            const map = this.customMap.map;
+            google.maps.event.trigger(map, "resize");
+
+            // 🛠 idle 발생 시 지도 이동
+            google.maps.event.addListenerOnce(map, 'idle', () => {
+                console.log("✅ map idle → now moving to center");
+                map.setCenter(center);
+                map.setZoom(25);
+
+                console.log("📌 실제 이동된 중심:", map.getCenter().toString());
+            });
+
+            // 마커 클릭
+            selectedPlace.checkmarker_event_start();
+        } else {
+            console.log("해당하는 장소를 찾을 수 없습니다.");
         }
-        google.maps.event.trigger(this.customMap.map, "resize");
 
-        const center = new google.maps.LatLng(selectedPlace[0].latitude, selectedPlace[0].longitude);정
 
-        selectedPlace.checkmarker_event_start();
     }
 
 
 
     // 전체 리스트 데이터 세팅하기
     async setData() {
+        if (this._setDataRunning) {
+            console.warn("⏱ setData 중복 실행 방지");
+            return;
+        }
+        this._setDataRunning = true;
         var selectCar =
             $("#carCodeSelect option:selected").val() ||
             $("#carCodeSelect option:first").val();
@@ -434,7 +486,6 @@ class WebRobot {
         // 차량 유형 선택 시 날짜 목록과 데이터 재로드
         document.getElementById("carCodeSelect").addEventListener("change", async () => {
             await this.makeDate();       // 날짜 select 갱신
-            // await this.setData();        // 차량 마커, 장소 등 새로 그림
         });
 
 

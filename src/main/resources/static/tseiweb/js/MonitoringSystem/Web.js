@@ -107,26 +107,6 @@ class Web {
           });
       }
     });
-    if (selectCar === "R1" || selectCar === "R2") {
-      // 로봇 로직 분기
-      const robotPathList = await this.getRobotPath(selectCar, selectDate);
-      if (robotPathList.length > 0) {
-        robotPathList.forEach(data => {
-          this.carList.addCar(
-              data.carCode,
-              { lat: data.latitude, lng: data.longitude },
-              data.date,
-              data.detailId,
-              null, // CSV 파일명 없음
-              null  // windDirection 없음
-          );
-        });
-        this.carList.drawPath();
-      } else {
-        console.warn("로봇 경로 없음");
-      }
-      return;
-    }
 
   }
 

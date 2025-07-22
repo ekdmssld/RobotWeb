@@ -10,6 +10,9 @@ class SourcePlace {
     odor
   ) {
     this.map = map;
+    if (!this.customMap) {
+      this.customMap = window.web?.customMap || window.webRobot?.customMap || null;
+    }
     this.customMap = customMap;
     this.companyIndex = companyIndex;
     this.title = title;
@@ -135,18 +138,12 @@ class SourcePlace {
   // 이벤트 일괄 추가
   addEventListener() {
     // 장소마커 클릭이벤트
-    this.marker.addListener("click", () => {
-      this.checkmarker_event_start();
-    });
+    this.marker.addListener("click", this.checkmarker_event_start.bind(this));
   }
 
   // 장소 클릭 이벤트
   async checkmarker_event_start()
   {
-    console.log("🧪 checkmarker_event_start 실행됨");
-    console.log("🧪 this.customMap:", this.customMap);
-    console.log("🧪 this.customMap.clickoffPlace:", typeof this.customMap?.clickoffPlace);
-
     // 기존 클릭상태 초기화
     this.customMap.clickoffPlace();
     // 클릭된 마커 customMap에 전달
