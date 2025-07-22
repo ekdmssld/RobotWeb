@@ -8,6 +8,9 @@
   height: 100vh;
   width: 100%;
   background-color: black;
+    position: relative !important;
+    z-index: 5 !important;
+    pointer-events: auto !important;
 }
 
 #analysisModal {
@@ -387,4 +390,10 @@ input[type="range"]::-webkit-slider-thumb {
 /* 슬라이더 손잡이를 드래그할 때 배경색 변경 */
 input[type="range"]::-webkit-slider-thumb:hover {
   background-color: #1d4497;
+}
+#map > div {
+  pointer-events: none !important;
+}
+#map canvas {
+  pointer-events: auto !important;
 }

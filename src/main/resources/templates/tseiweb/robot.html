@@ -58,7 +58,6 @@
 
 <!-- 알림 영역 -->
 <ul class="notifications"></ul>
-
 <!-- 로딩 애니메이션 -->
 <div id="loading-anim" style="display: none">
     <div class="center">
@@ -203,6 +202,7 @@
     <button id="saveRobotPathBtn">경로 저장</button>
     <button id="viewSavedPath">확인</button>
     <button onclick="document.getElementById('robotPathModal').style.display='none'">닫기</button>
+    <ul id="pathList"></ul>
 </div>
 
 
@@ -226,9 +226,6 @@
         const webRobot = new WebRobot();
         await webRobot.init();
         window.webRobot = webRobot; // 전역에 등록
-    });
-    document.getElementById("saveRobotPathBtn").addEventListener("click", () => {
-        robotControl.savePathToServer();
     });
 
 </script>
