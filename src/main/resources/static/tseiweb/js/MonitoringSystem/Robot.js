@@ -24,22 +24,37 @@ function addClickSearchEvent() {
         el.addEventListener("click", clickSearchPlaceEvent)
     );
 }
-
-// Robot.js
 document.addEventListener("DOMContentLoaded", async () => {
     const analysisModal = new AnalysisModal("analysisModal");
     const compareModal = new CompareModal("robotCompareModal");
     window.customMap = new CustomMap(analysisModal, compareModal);
     await window.customMap.init(35.456966, 129.32799);  // 지도 생성
+
+    window.robotMap = window.customMap.map;
+
+    // 차량 선택 변경 시 날짜 목록 로드
     document.getElementById("carCodeSelect").addEventListener("change", handleCarCodeChange);
 
+    // ✅ 🔽 검색 버튼 이벤트 추가
+    document.getElementById("searchRobot").addEventListener("click", async () => {
+        const carCode = document.getElementById("carCodeSelect").value;
+        const date = document.getElementById("availableDates").value;
 
-// 지도 및 커스텀맵 연결
+        if (!carCode || !date) {
+            alert("차량과 날짜를 모두 선택해주세요.");
+            return;
+        }
+
+        document.getElementById("loading-anim").style.display = "block";  // 로딩 애니메이션 시작
+        await fetchRobotPath(date, carCode);  // 경로 조회 실행
+    });
+
+    // 지도 및 커스텀맵 연결
     window.sourcePlaceList = new SourcePlaceList(window.customMap.map, window.customMap);  // ✅ customMap 전달
     await fetchAndAddPlaces();
     window.customMap.placeList = window.sourcePlaceList;
-
 });
+
 
 
 //22가지 화학물질 데이터 불러오기
