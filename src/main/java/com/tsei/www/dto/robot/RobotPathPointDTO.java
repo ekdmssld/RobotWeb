@@ -11,14 +11,15 @@ public class RobotPathPointDTO {
     private String carCode;
     private String type;
     private String date;
+    private String pathGroup;
     private List<Point> points;
-
 
     public static class Point {
         private double latitude;
         private double longitude;
         private String date;
         private String windDirection;
+        private String pathGroup;
 
         public double getLatitude() {
             return latitude;
@@ -35,6 +36,15 @@ public class RobotPathPointDTO {
         public String getWindDirection() {
             return windDirection;
         }
+
+        public String getPathGroup() {
+            return pathGroup;
+        }
+
+        public void setPathGroup(String pathGroup) {
+            this.pathGroup = pathGroup;
+        }
+
     }
 
     public String getCarCode() {

@@ -30,6 +30,9 @@ public class RobotPath {
     @Column(name = "longitude")
     private Double longitude;
 
+    @Column(name = "path_group")
+    private String pathGroup;
+
     @Column(name = "record_time")
     private LocalDateTime recordTime;
 
@@ -97,6 +100,14 @@ public class RobotPath {
 
     public void setWindDir(String windDir) {
         this.windDir = windDir;
+    }
+
+    public String getPathGroup(){
+        return pathGroup;
+    }
+
+    public void setPathGroup(String pathGroup){
+        this.pathGroup = pathGroup;
     }
 
 }

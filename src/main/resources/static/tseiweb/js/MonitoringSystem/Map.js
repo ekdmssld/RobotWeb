@@ -120,6 +120,8 @@ window.robotMapInit = async function (lat = 35.1796, lng = 129.0756) {
     center: position,
     zoom: zoom,
     mapId: "robot_map_id_1234",
+    draggable: true,
+    zoomControl: true,
     disableDefaultUI: true,
     gestureHandling: "greedy",
     mapTypeId: google.maps.MapTypeId.SATELLITE,

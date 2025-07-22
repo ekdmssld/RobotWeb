@@ -31,6 +31,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const compareModal = new CompareModal("robotCompareModal");
     window.customMap = new CustomMap(analysisModal, compareModal);
     await window.customMap.init(35.456966, 129.32799);  // 지도 생성
+    document.getElementById("carCodeSelect").addEventListener("change", handleCarCodeChange);
+
 
 // 지도 및 커스텀맵 연결
     window.sourcePlaceList = new SourcePlaceList(window.customMap.map, window.customMap);  // ✅ customMap 전달

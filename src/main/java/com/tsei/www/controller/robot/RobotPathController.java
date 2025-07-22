@@ -4,6 +4,7 @@ import com.tsei.www.dto.robot.RobotPathPointDTO;
 import com.tsei.www.service.robot.RobotPathService;
 import com.tsei.www.vo.RobotPath;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,4 +32,18 @@ public class RobotPathController {
         List<RobotPath> result = service.getRobotPath(carCode, localDate);
         return ResponseEntity.ok(result);
     }
+
+//    @DeleteMapping("/robotPath/delete")
+//    public ResponseEntity<String> deletePath(@RequestParam String carCode){
+//
+//    }
+
+    @GetMapping("/robotPath/groups")
+    public ResponseEntity<List<String>> getPathGroups(
+            @RequestParam String carCode,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        List<String> groups = service.findPathGroups(carCode, date);
+        return ResponseEntity.ok(groups);
+    }
+
 }

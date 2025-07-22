@@ -16,5 +16,6 @@ public class RobotPathDTO {
     private String measureFlag;
     private Long detailId;
     private String carCode;
+    private String pathGroup;
 
 }
