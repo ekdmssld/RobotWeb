@@ -74,8 +74,6 @@ class RobotController {
                 date: new Date().toISOString(),
                 windDirection: null
             });
-            this.robotPreviewMarkers.push(marker);
-            this.robotPathPoints.push({ latitude: lat, longitude: lng });
             this.updatePathListUI();
 
         });
@@ -101,9 +99,21 @@ class RobotController {
         this.pathRecording = false;
         document.getElementById("map").classList.remove("crosshair-cursor");
         console.log("🛑 경로 입력 종료됨:", this.robotPathPoints);
+        alert("경로 입력이 완료되었습니다. 경로 저장을 이어나가세요");
+
+        if(this.robotPathPoints.length > 0){
+            const btnWrap = document.getElementById("savedPathButtons");
+            btnWrap.innerHTML = '';
+            const idx = document.querySelectorAll("#savedPathButtons button").length;
+            const btn = document.createElement("button");
+            btn.innerHTML = `경로 ${idx} 저장`;
+            btn.onclick = () => this.save(idx);
+            btn.className = "save-path-btn";
+            btnWrap.appendChild(btn);
+        }
     }
 
-    async save() {
+    async save(pathNumber = 1) {
         if (!this.robotPathPoints.length) {
             alert("❗ 저장할 경로가 없습니다.");
             return;
@@ -117,6 +127,7 @@ class RobotController {
             carCode,
             type,
             date,
+            pathNumber,
             points: this.robotPathPoints
         };
 
@@ -133,7 +144,7 @@ class RobotController {
             this.robotPathPoints = [];
             this.robotPreviewMarkers.forEach(marker => marker.setMap(null));
             this.robotPreviewMarkers = [];
-            document.getElementById("robotPathModal").style.display = "none";
+            this.updatePathListUI();
             document.getElementById("map").classList.remove("crosshair-cursor");
 
         } catch (err) {
@@ -177,5 +188,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("openRobotPathModal").addEventListener("click", () => {
         document.getElementById("robotPathModal").style.display = "block";
     });
+
+    document.getElementById("viewSavedPath").addEventListener("click", viewSavedPath);
 });
+
+async function viewSavedPath(){
+    const carCode = document.getElementById("robotSelect").value;
+    const date = new Date().toISOString().split("T")[0];
+
+    try{
+        const res = await fetch(`/arims/robotPath/get?carCode=${carCode}&date=${date}`);
+        const data = await res.json();
+
+        const ul = document.getElementById("pathList");
+        ul.innerHTML = "";
+
+        if(data.length === 0){
+            ul.innerHTML = '<li>저장된 경로가 없습니다. </li>';
+            return ;
+        }
+
+        data.forEach((path, idx) => {
+            const li = document.createElement("li");
+            li.innerHTML = `<span><strong>${idx+1}.</strong>(${path.latitude.toFixed(6)},${path.latitude.toFixed(6)})</span>`;
+            ul.appendChild(li);
+        });
+    }catch(err){
+        console.error(err);
+        alert("경로 조회 실패");
+    }
+}
 
