@@ -285,8 +285,8 @@ function drawRobotMarkers(dataList) {
             item.detailId,
             null,                 // csv
             item.windDirection,   // 풍향
-            item.radius = 500,
-            item.angle = 30
+            500,
+            30
         );
 
         // robotCar의 마커 스타일 커스터마이징
@@ -339,7 +339,8 @@ function drawRobotMarkers(dataList) {
                 center: { lat: item.latitude, lng: item.longitude },
                 radius: 2000 // 반경 2km
             });
-            await drawCircularSector(item.latitude, item.longitude, item.windDirection);
+            await drawCircularSector(item.latitude, item.longitude, item.windDirection, robotCar.radius, robotCar.
+                sectorAngle);
             setRadioButtons(runtimeCar)
 
             // 같은 마커 클릭 시 모달 토글
@@ -465,70 +466,6 @@ async function openChemicalModal(sensorId) {
         alert("센서 정보를 불러올 수 없습니다.");
     }
 }
-function showSensorModal(sensorDataList) {
-    if (!Array.isArray(sensorDataList)) {
-        alert("⚠️ 센서 데이터를 불러오지 못했습니다.");
-        return;
-    }
-    const tableBody = document.querySelector("#integratedTable tbody");
-    const tableHead = document.querySelector("#integratedTable thead");
-    tableBody.innerHTML = "";
-    tableHead.innerHTML = "";
-
-    // 헤더 설정 (센서명, PPM, REF, RS, RO 등)
-    const headers = ["센서명", "PPM"];
-    // const headers = ["센서명", "PPM", "REF", "RS", "RO"];
-    const headRow = document.createElement("tr");
-    headers.forEach(title => {
-        const th = document.createElement("th");
-        th.textContent = title;
-        headRow.appendChild(th);
-    });
-    tableHead.appendChild(headRow);
-
-    // 센서 데이터 행 구성
-    sensorDataList.forEach(sensor => {
-        const row = document.createElement("tr");
-        const values = [
-            sensor.gasName,  // 센서 이름
-            sensor.ppm,      // ppm
-            // sensor.ref,      // ppm_ref_go 혹은 비슷한 값
-            // sensor.rs,
-            // sensor.ro
-        ];
-        values.forEach(val => {
-            const td = document.createElement("td");
-            td.textContent = val;
-            row.appendChild(td);
-        });
-        tableBody.appendChild(row);
-    });
-
-    // 모달 표시
-    const modal = document.getElementById("analysisModal");
-    modal.style.display = "block";
-}
-function showWeatherModal(data) {
-    if (!data) {
-        alert("해당 시간의 날씨 데이터가 없습니다.");
-        return;
-    }
-
-    const html = `
-        <table>
-            <tr><th>시간</th><td>${data.reg_date}</td></tr>
-            <tr><th>온도</th><td>${data.wd_temp} ℃</td></tr>
-            <tr><th>습도</th><td>${data.wd_humi} %</td></tr>
-            <tr><th>풍향</th><td>${data.wd_wdd} °</td></tr>
-            <tr><th>풍속</th><td>${data.wd_wds} m/s</td></tr>
-        </table>
-    `;
-
-    const modal = document.getElementById("weatherModal");
-    modal.querySelector(".content").innerHTML = html;
-    modal.style.display = "block";
-}
-
 
 window.addEventListener("click", function (e) {
     const modal = document.getElementById("analysisModal");
@@ -608,19 +545,31 @@ function getDistance(lat1, lon1, lat2, lon2) {
 function deg2rad(deg) {
     return deg * (Math.PI / 180);
 }
-// 반경을 변경시 생기는 이벤트
 function changeRadius(radius) {
-    clearTableText()
-    runtimeCar.radius = radius;
-    runtimeCar.checkmarker_event_start();
+    if (!runtimeCar) return;
+    runtimeCar.radius = Number(radius);
+    drawCircularSector(
+        runtimeCar.latitude,
+        runtimeCar.longitude,
+        runtimeCar.direction,
+        runtimeCar.radius,
+        runtimeCar.angle
+    );
 }
 
-// 너비를 변경할시 생기는 이벤트
 function changeAngle(angle) {
-    runtimeCar.angle = angle;
-    clearTableText()
-    runtimeCar.checkmarker_event_start();
+    if (!runtimeCar) return;
+    runtimeCar.angle = Number(angle);
+    drawCircularSector(
+        runtimeCar.latitude,
+        runtimeCar.longitude,
+        runtimeCar.direction,
+        runtimeCar.radius,
+        runtimeCar.angle
+    );
 }
+
+
 // 반경 내 사업장 데이터 채우기
 function fillInRadiusTable(objects) {
 // 테이블을 가져옵니다.
@@ -729,50 +678,10 @@ function fillPredictResultTable(objects){
     }
 
 }
-
-// 반경 및 부채꼴 너비 값을 범주형 데이터로 변환
-function convertToButtonValue(type, value) {
-    if (type === "angle") {
-        // 반경을를 버튼의 값으로 변환합니다.
-        if (value >= 0 && value <= 30) {
-            return 30;
-        } else if (value > 30 && value <= 60) {
-            return 60;
-        } else if (value > 60 && value <= 90) {
-            return 90;
-        } else if (value > 90 && value <= 120) {
-            return 120;
-        } else {
-            return 120; // 해당하는 범위가 없을 경우 null 반환
-        }
-    } else if (type === "radius") {
-        // 반경을 버튼의 값으로 변환합니다.
-        // 예를 들어, 반경이 0 ~ 5000 사이에 있을 때, 1000, 2000, 3000, 4000, 5000 값으로 변환합니다.
-        if (value >= 0 && value <= 500) {
-            return 500;
-        } else if (value > 500 && value <= 1000) {
-            return 1000;
-        } else if (value > 1000 && value <= 2000) {
-            return 2000;
-        } else if (value > 2000 && value <= 3000) {
-            return 3000;
-        } else if (value > 3000 && value <= 4000) {
-            return 4000;
-        } else if (value > 4000 && value <= 5000) {
-            return 5000;
-        } else {
-            return null; // 해당하는 범위가 없을 경우 null 반환
-        }
-    } else {
-        return null; // 유효하지 않은 type일 경우 null 반환
-    }
-}
-async function drawCircularSector(lat, lng, windDirDeg) {
+async function drawCircularSector(lat, lng, windDirDeg, radius = 1000, sectorAngle = 30) {
     await google.maps.importLibrary("geometry");
 
     const center = new google.maps.LatLng(lat, lng);
-    const radius = 2000; // 2km
-    const sectorAngle = 60; // 부채꼴 각도 (예: ±30도)
 
     const startAngle = windDirDeg - sectorAngle / 2;
     const endAngle = windDirDeg + sectorAngle / 2;
@@ -789,10 +698,21 @@ async function drawCircularSector(lat, lng, windDirDeg) {
     }
     points.push(center); // 닫기
 
-    // 이전 부채꼴 제거
-    if (window.robotSector) {
-        window.robotSector.setMap(null);
-    }
+    // ✅ 기존 도형 제거
+    if (window.robotSector) window.robotSector.setMap(null);
+    if (window.robotCircle) window.robotCircle.setMap(null);
+
+    // 🟢 새 원 추가
+    window.robotCircle = new google.maps.Circle({
+        strokeColor: "red",
+        strokeOpacity: 0.5,
+        strokeWeight: 1,
+        fillColor: "green",
+        fillOpacity: 0.1,
+        map: window.robotMap,
+        center: center,
+        radius: radius
+    });
 
     // 부채꼴 추가
     window.robotSector = new google.maps.Polygon({
