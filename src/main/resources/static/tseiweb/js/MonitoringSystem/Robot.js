@@ -384,6 +384,8 @@ function drawRobotMarkers(dataList) {
                 fillOdorPrediction(odorResult);
                 openRobotModal(integrated, odorResult);
 
+
+
                 // 2km 이내 사업장 비교
                 const places = (window.customMap?.placeList?.places || [])
                     .filter(place => {
@@ -795,11 +797,11 @@ async function drawCircularSector(lat, lng, windDirDeg) {
     // 부채꼴 추가
     window.robotSector = new google.maps.Polygon({
         paths: points,
-        strokeColor: "#0099ff",
+        strokeColor: "red",
         strokeOpacity: 0.6,
         strokeWeight: 1,
-        fillColor: "#3399ff",
-        fillOpacity: 0.3,
+        fillColor: "green",
+        fillOpacity: 0.35,
         map: window.robotMap
     });
 }

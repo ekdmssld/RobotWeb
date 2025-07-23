@@ -42,19 +42,8 @@ class RobotModal {
         this.dragging = false;
     }
 
-    open(title, sensorData) {
-        if (!this.modal) return;
-        this.modal.style.left = "70%";
-        this.modal.style.top = "5%";
-        this.modal.style.display = "block";
 
-        if (this.modalText) this.modalText.textContent = title;
-        if (this.integratedTable) this.populateTable(sensorData);
-    }
 
-    close() {
-        if (this.modal) this.modal.style.display = "none";
-    }
 
     populateTable(data) {
         if (!Array.isArray(data)) {
