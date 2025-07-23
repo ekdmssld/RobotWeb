@@ -101,22 +101,30 @@ class WebRobot {
         }
     }
 
+    // 장소 검색기능
     searchPlace() {
-        const selectedPlaceTitle = document.getElementById("selectPlaceMarker").value;
+        // 장소 검색창에 입력한 값 가져오기
+        const selectedPlaceTitle =
+            document.getElementById("selectPlaceMarker").value;
 
-        const selectedPlace = this.sourcePlaceList.places.find(
+        // 장소 리스트에서 검색창에 입력한 값고 이름이 같은 마커 가져오기
+        var selectedPlace = this.sourcePlaceList.places.find(
             (place) => place.getTitle() == selectedPlaceTitle
         );
 
-        if (!selectedPlace) {
-            console.warn("❌ 해당하는 장소를 찾을 수 없습니다.");
-            return;
+        // 검색결과가 있는 경우
+        if (selectedPlace) {
+            // 장소 클릭시 빨간색 제거
+            this.customMap.clickoffPlace();
+            // 지도 중심 설정
+            this.customMap.map.setCenter(selectedPlace.getLocation());
+            // 지도 줌 레벨 설정
+            this.customMap.map.setZoom(25);
+            // 장소 마커 클릭 이벤트 시작(모달에 장소 화학물질 보여주기)
+            selectedPlace.checkmarker_event_start();
+        } else {
+            console.log("해당하는 장소를 찾을 수 없습니다.");
         }
-        google.maps.event.trigger(this.customMap.map, "resize");
-
-        const center = new google.maps.LatLng(selectedPlace[0].latitude, selectedPlace[0].longitude);정
-
-        selectedPlace.checkmarker_event_start();
     }
 
 

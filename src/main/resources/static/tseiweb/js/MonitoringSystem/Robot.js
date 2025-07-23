@@ -2,7 +2,7 @@ const fixedDates = {
     R1: "2024-08-13",
     R2: "2025-04-17"
 };
-// window.analysisModal = new AnalysisModal("robotAnalysisModal");
+window.analysisModal = new AnalysisModal("analysisModal");
 window.compareModal = new CompareModal("robotCompareModal");
 window.customMap = new CustomMap(window.analysisModal, window.compareModal);
 
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
     //사업장 리스트 생성 및 지도에 표시
-    window.sourcePlaceList = new SourcePlaceList(window.robotMap, null);
+    window.sourcePlaceList = new SourcePlaceList(window.robotMap, window.customMap);
 
     // window.customMap = {};  // 임시 customMap 객체 생성
     await fetchAndAddPlaces();  // 아래에 정의된 함수 호출
@@ -512,7 +512,8 @@ async function fetchAndAddPlaces() {
                     lng: place.longitude
                 },
                 place.csvFilename,
-                place.odor
+                place.odor,
+                window.customMap
             );
         }
 
