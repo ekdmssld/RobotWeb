@@ -24,38 +24,47 @@ function addClickSearchEvent() {
         el.addEventListener("click", clickSearchPlaceEvent)
     );
 }
+
+
 document.addEventListener("DOMContentLoaded", async () => {
-    const analysisModal = new AnalysisModal("analysisModal");
-    const compareModal = new CompareModal("robotCompareModal");
-    window.customMap = new CustomMap(analysisModal, compareModal);
-    await window.customMap.init(35.456966, 129.32799);  // 지도 생성
+    await waitForGoogleMaps();
 
-    window.robotMap = window.customMap.map;
+    window.robotModal = new RobotModal("analysisModal");
+    window.robotMarkers = [];
+    window.robotPolyline = null;
 
-    // 차량 선택 변경 시 날짜 목록 로드
+    await window.robotMapInit();
+    addClickSearchEvent();
+
+
+    //사업장 리스트 생성 및 지도에 표시
+    window.sourcePlaceList = new SourcePlaceList(window.robotMap, null);
+
+    // window.customMap = {};  // 임시 customMap 객체 생성
+    await fetchAndAddPlaces();  // 아래에 정의된 함수 호출
+    window.customMap.placeList = window.sourcePlaceList;
+
+    // 로봇 선택 이벤트
     document.getElementById("carCodeSelect").addEventListener("change", handleCarCodeChange);
 
-    // ✅ 🔽 검색 버튼 이벤트 추가
-    document.getElementById("searchRobot").addEventListener("click", async () => {
+    // 조회 버튼
+    document.getElementById("searchRobot").addEventListener("click", () => {
+        document.getElementById("loading-anim").style.display = "block";
+
         const carCode = document.getElementById("carCodeSelect").value;
         const date = document.getElementById("availableDates").value;
 
         if (!carCode || !date) {
-            alert("차량과 날짜를 모두 선택해주세요.");
+            alert("로봇과 날짜를 선택해주세요");
+            document.getElementById("loading-anim").style.display = "none";
             return;
         }
 
-        document.getElementById("loading-anim").style.display = "block";  // 로딩 애니메이션 시작
-        await fetchRobotPath(date, carCode);  // 경로 조회 실행
+        fetchRobotPath(date, carCode);
     });
 
-    // 지도 및 커스텀맵 연결
-    window.sourcePlaceList = new SourcePlaceList(window.customMap.map, window.customMap);  // ✅ customMap 전달
-    await fetchAndAddPlaces();
-    window.customMap.placeList = window.sourcePlaceList;
+    await handleCarCodeChange(); // 초기 날짜 목록 로딩
 });
-
-
 
 //22가지 화학물질 데이터 불러오기
 async function fetchChemicalData(detailId){

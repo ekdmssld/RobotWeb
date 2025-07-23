@@ -18,8 +18,8 @@ class SourcePlaceList {
 
   async addPlace(companyIndex, name, placeLocation, csvFileName, odor) {
     const place = new SourcePlace(
-      this.customMap.map, //map
-      this.customMap, //customMap
+      this.map,
+      this.customMap,
       companyIndex,
       name,
       placeLocation.lat,
