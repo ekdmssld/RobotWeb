@@ -387,7 +387,7 @@ class WebRobot {
         const selectedCarIndex = document.getElementById("selectCarMarker").value;
         //차량리스트에서 select 값과 같은 마커 가져오기
         const selectedCar = this.carList.cars.find(
-            (car) => car.carIndex === parseInt(selectedCarIndex)
+            (car) => car.carIndex === selectedCarIndex
         );
 
         // 검색결과가 있는 경우
@@ -444,8 +444,6 @@ class WebRobot {
             await this.makeDate();       // 날짜 select 갱신
             // await this.setData();        // 차량 마커, 장소 등 새로 그림
         });
-
-
 
         // 차량 검색
         document

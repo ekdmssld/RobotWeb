@@ -27,7 +27,6 @@ class SourcePlaceList {
       csvFileName,
       odor,
     );
-    console.log("[addPlace] 전달하는 customMap:", customMap);
     await place.createMarker();
     this.places.push(place);
     this.placeLocations.push(placeLocation);

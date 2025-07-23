@@ -261,6 +261,9 @@ function drawRobotMarkers(dataList) {
 
     clearRobotMarkers();  // 기존 마커/선 제거
     const path = [];
+    const carList = []; //car 객체 저장
+    const select = document.getElementById("selectCarMarker");
+    if(select) select.innerHTML = "";
     let currentOpenDetailId = null;
 
     dataList.forEach((item, index) => {
@@ -385,8 +388,6 @@ function drawRobotMarkers(dataList) {
                 fillOdorPrediction(odorResult);
                 openRobotModal(integrated, odorResult);
 
-
-
                 // 2km 이내 사업장 비교
                 const places = (window.customMap?.placeList?.places || [])
                     .filter(place => {
@@ -420,11 +421,20 @@ function drawRobotMarkers(dataList) {
         });
         // robotCar 마커를 배열에 추가 (Car 객체 전체를 저장하거나 마커만 저장)
         window.robotMarkers.push(robotCar.marker);
+        carList.push(robotCar);
         // 또는 Car 객체 전체를 저장하려면:
         // window.robotMarkers.push(robotCar);
 
         path.push(position);
+
+        if(select){
+            const opt = document.createElement("option");
+            opt.value = robotCar.carIndex;
+            opt.textContent = `${robotCar.titleIndex}번 차량`;
+            select.appendChild(opt);
+        }
     });
+    window.customMap.carList = {cars:carList};
 
     // 경로 선 그리기
     if (path.length > 1) {
