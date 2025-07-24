@@ -131,9 +131,17 @@ class WebRobot {
 
     // 전체 리스트 데이터 세팅하기
     async setData() {
-        var selectCar =
-            $("#carCodeSelect option:selected").val() ||
-            $("#carCodeSelect option:first").val();
+        let selectCar = $("#carCodeSelect option:selected").val();
+        if (!selectCar) {
+            selectCar = "R1"; // 또는 R2 등 기본값 강제 설정
+        }
+        if (!selectCar || !selectDate) {
+            console.warn("⛔ 차량 또는 날짜가 선택되지 않아 setData() 실행 중단");
+            return;
+        }
+
+        console.log("💬 강제 설정된 selectCar:", selectCar);
+
         //차량검색 select 세팅하기
         await this.makeDate();
         // 선택된 운행 내역 가져오기
@@ -154,14 +162,13 @@ class WebRobot {
                         null
                     );
 
-                    console.log("🚗 addCar 호출됨:", data.carCode, { lat: data.latitude, lng: data.longitude });
-                    const lastCar = this.carList.cars[this.carList.cars.length - 1];
-                    console.log("📌 생성된 carIndex:", lastCar?.carIndex);
+                    console.log("🧪 this.carList:", this.carList);
+                    console.log("🧪 this.carList instanceof CarList:", this.carList instanceof CarList);
 
                     this.carList.addPath({ lat: data.latitude, lng: data.longitude }, true);
                 });
-                this.carList.makeSelectionCar();
                 this.carList.drawPath();
+                this.carList.makeSelectionCar();
             } else {
                 console.warn("로봇 경로 없음");
             }
@@ -217,6 +224,7 @@ class WebRobot {
                     data.windDirection
                 ))
         );
+        console.log("carList에 추가된 차량 수 : ", this.carList.cars.length);
         setTimeout(() => {
             this.carList.makeSelectionCar();
         }, 300);
@@ -408,6 +416,7 @@ class WebRobot {
 
         // 검색결과가 있는 경우
         if (selectedCar) {
+            console.log("checkmarker_event_start 실행 준비", selectedCar);
             // 차량 click시 바뀌는 빨간색 끄기
             this.customMap.clickoffCar();
             // 지도 중심 설정
@@ -459,6 +468,18 @@ class WebRobot {
         document.getElementById("carCodeSelect").addEventListener("change", async () => {
             await this.makeDate();       // 날짜 select 갱신
             // await this.setData();        // 차량 마커, 장소 등 새로 그림
+        });
+
+        // 운행 내역, 모드 선택 인터페이스 검색
+        document.getElementById("searchGPS").addEventListener("click", () => {
+            this.search();
+        });
+
+        // 차량선택시 운행날짜목록 갱신
+        document.getElementById('selectCar').addEventListener('change', e => {
+            // console.log("ddd");
+            // this.wait().then(this.makeDate());
+            this.makeDate(e);
         });
 
         // 차량 검색
