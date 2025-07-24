@@ -19,6 +19,23 @@ function addClickSearchEvent() {
             selectedPlace.checkmarker_event_start();
         }
     };
+    // 반경내 사업장 클릭 이벤트
+    const inRadiusElements = document.querySelectorAll(".inRadius");
+    inRadiusElements.forEach((element) => {
+        element.addEventListener("click", clickSearchPlaceEvent);
+    });
+
+    // 부채꼴 내 일치사업장 클릭이벤트
+    const matchingElements = document.querySelectorAll(".matching");
+    matchingElements.forEach((element) => {
+        element.addEventListener("click", clickSearchPlaceEvent);
+    });
+
+    // 악취원인예측 사업장 클릭이벤트
+    const resultElements = document.querySelectorAll(".result_place");
+    resultElements.forEach((element) => {
+        element.addEventListener("click", clickSearchPlaceEvent);
+    });
 
     document.querySelectorAll(".inRadius, .matching, .result_place").forEach(el =>
         el.addEventListener("click", clickSearchPlaceEvent)
@@ -429,12 +446,13 @@ function drawRobotMarkers(dataList) {
 
         if(select){
             const opt = document.createElement("option");
-            opt.value = robotCar.carIndex;
+            opt.value = robotCar.titleIndex;
             opt.textContent = `${robotCar.titleIndex}번 차량`;
             select.appendChild(opt);
         }
     });
-    window.customMap.carList = {cars:carList};
+    // window.customMap.carList = {cars:carList};
+    window.customMap.carList = carList;
 
     // 경로 선 그리기
     if (path.length > 1) {
@@ -583,6 +601,7 @@ function changeAngle(angle) {
 
 // 반경 내 사업장 데이터 채우기
 function fillInRadiusTable(objects) {
+    console.log("fillInRadiusTable 호출됨", objects);
 // 테이블을 가져옵니다.
     var table = document.querySelector("#odor_correct_table");
 
@@ -617,7 +636,14 @@ function fillInRadiusTable(objects) {
 
 // 테이블에 thead를 추가합니다.
     table.appendChild(thead);
-    (window.web || window.webRobot).addClickInRadiusEvent();
+    // 안전하게 클릭 이벤트 연결
+    if (typeof window.web?.addClickInRadiusEvent === "function") {
+        window.web.addClickInRadiusEvent();
+    } else if (typeof window.webRobot?.addClickInRadiusEvent === "function") {
+        window.webRobot.addClickInRadiusEvent();
+    } else {
+        console.warn("❌ addClickInRadiusEvent를 찾을 수 없습니다.");
+    }
 }
 
 

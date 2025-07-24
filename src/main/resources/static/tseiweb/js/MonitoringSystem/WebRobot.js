@@ -150,9 +150,14 @@ class WebRobot {
                         { lat: data.latitude, lng: data.longitude },
                         data.date,
                         data.detailId,
-                        null, // CSV 파일명 없음
-                        null  // windDirection 없음
+                        null,
+                        null
                     );
+
+                    console.log("🚗 addCar 호출됨:", data.carCode, { lat: data.latitude, lng: data.longitude });
+                    const lastCar = this.carList.cars[this.carList.cars.length - 1];
+                    console.log("📌 생성된 carIndex:", lastCar?.carIndex);
+
                     this.carList.addPath({ lat: data.latitude, lng: data.longitude }, true);
                 });
                 this.carList.makeSelectionCar();
@@ -295,20 +300,27 @@ class WebRobot {
         //console.log("클러스터러" , this.sourcePlaceList.clusterer)
     }
     async getRobotPath(carCode, date) {
-      const startTime = `${date} 00:00:00`;
-      const endTime = `${date} 23:59:59`;
-      const url = `/arims/robot/path?startTime=${startTime}&endTime=${endTime}&carCode=${carCode}`;
+        const startTime = `${date} 00:00:00`;
+        const endTime = `${date} 23:59:59`;
+        const url = `/arims/robot/path?startTime=${startTime}&endTime=${endTime}&carCode=${carCode}`;
 
-      try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("Network error");
-        const data = await response.json();
-        return data;
-      } catch (err) {
-        console.error("로봇 경로 fetch 오류:", err);
-        return [];
-      }
+        console.log("📡 로봇 경로 요청 URL:", url);
+        console.log("📅 날짜:", date, "🚗 차량코드:", carCode);
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error("Network error");
+            }
+            const data = await response.json();
+            console.log("📥 응답 받은 데이터:", data);
+            return data;
+        } catch (err) {
+            console.error("❌ 로봇 경로 fetch 오류:", err);
+            return [];
+        }
     }
+
 
     // 차량 세부 마커 생성 및 일부 GPS 경로 그리기
     async sequentialCar(carDataList) {
@@ -387,8 +399,12 @@ class WebRobot {
         const selectedCarIndex = document.getElementById("selectCarMarker").value;
         //차량리스트에서 select 값과 같은 마커 가져오기
         const selectedCar = this.carList.cars.find(
-            (car) => car.carIndex === selectedCarIndex
+            (car) => car.carCode === selectedCarIndex
         );
+
+        console.log("선택된 값:", selectedCarIndex);
+        console.log("현재 차량 목록:", this.carList.cars.map(c => c.carIndex));
+
 
         // 검색결과가 있는 경우
         if (selectedCar) {
@@ -446,11 +462,9 @@ class WebRobot {
         });
 
         // 차량 검색
-        document
-            .getElementById("searchCar")
-            .addEventListener("click", () => {
-                this.searchCar();
-            });
+        document.getElementById("searchCar")
+            .addEventListener("click", this.searchCar.bind(this));
+
 
         // 장소 검색
         document.getElementById("searchPlace").addEventListener(

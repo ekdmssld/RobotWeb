@@ -137,7 +137,7 @@ class Web {
     const selectedCarIndex = document.getElementById("selectCarMarker").value;
     //차량리스트에서 select 값과 같은 마커 가져오기
     const selectedCar = this.carList.cars.find(
-      (car) => car.titleIndex === parseInt(selectedCarIndex)
+        (car) => String(car.carIndex) === selectedCarIndex
     );
 
     // 검색결과가 있는 경우

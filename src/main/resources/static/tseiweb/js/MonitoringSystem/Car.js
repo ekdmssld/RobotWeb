@@ -46,7 +46,7 @@ class Car {
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
         scale: 10,
-        fillColor: "green",
+        fillColor: "blue",
         fillOpacity: 1.0,
         strokeColor: "#FFFFFF",
         strokeOpacity: 1.0,
@@ -250,9 +250,6 @@ class Car {
         resolve[0]?.pred_smell_kind,
         resolve[1]?.pred_smell_strength.toFixed(1)
       );
-      console.log("🧪 this.customMap:", this.customMap);
-      console.log("🧪 analysisModal:", this.customMap.analysisModal);
-      console.log("🧪 typeof open_modal:", typeof this.customMap.analysisModal?.open_modal);
 
       // 분석 모달 열기
       this.customMap.analysisModal.open_modal();

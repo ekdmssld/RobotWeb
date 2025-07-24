@@ -68,8 +68,6 @@ class CarList {
       csvFileName,
       windDirection
     );
-
-    console.log("addCar 호출됨", carIndex);
     this.cars.push(car);
     this.carMarkers.push(car.marker);
     this.carTitleIndex += 1;
@@ -127,7 +125,6 @@ class CarList {
   //거리기반 필터 : point1, point2 거리가 distance 보다 멀 경우 true
   async distanceFilter(point1, point2, distance) {
     const { spherical } = await google.maps.importLibrary("geometry");
-    console.log(`${google.maps.geometry.spherical.computeDistanceBetween(point1, point2)}, point1: ${point1}, point2: ${point2}`);
     return (
       google.maps.geometry.spherical.computeDistanceBetween(point1, point2) >=
       distance

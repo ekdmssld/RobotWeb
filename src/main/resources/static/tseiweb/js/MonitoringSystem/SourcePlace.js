@@ -143,10 +143,6 @@ class SourcePlace {
   // 장소 클릭 이벤트
   async checkmarker_event_start()
   {
-    console.log("🧪 checkmarker_event_start 실행됨");
-    console.log("🧪 this.customMap:", this.customMap);
-    console.log("🧪 this.customMap.clickoffPlace:", typeof this.customMap?.clickoffPlace);
-
     // 기존 클릭상태 초기화
     this.customMap.clickoffPlace();
     // 클릭된 마커 customMap에 전달
